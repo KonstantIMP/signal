@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+    <gresource prefix="/kimp/ui/">
+        <file preprocess="xml-stripblanks">SiganlWin.glade</file>
+    </gresource>
+</gresources>

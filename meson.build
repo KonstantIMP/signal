@@ -5,7 +5,8 @@ gnome = import('gnome')
 
 signal_sorce = [
     'source/app.d',
-    'source/SignalWin.d'
+    'source/SignalWin.d',
+    'source/VideoPulsePlot.d'
 ]
 signal_resorce = [
     'resource/signal.gresource.xml'

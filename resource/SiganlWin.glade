@@ -106,30 +106,6 @@
           </packing>
         </child>
         <child>
-          <object class="GtkDrawingArea" id="video_plot">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-          </object>
-          <packing>
-            <property name="left-attach">4</property>
-            <property name="top-attach">0</property>
-            <property name="width">8</property>
-            <property name="height">4</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkDrawingArea" id="radio_plot">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-          </object>
-          <packing>
-            <property name="left-attach">4</property>
-            <property name="top-attach">4</property>
-            <property name="width">8</property>
-            <property name="height">4</property>
-          </packing>
-        </child>
-        <child>
           <object class="GtkComboBoxText" id="mod_cb">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
@@ -143,6 +119,38 @@
             <property name="left-attach">0</property>
             <property name="top-attach">3</property>
             <property name="width">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow" id="video_sw">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="shadow-type">in</property>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">4</property>
+            <property name="top-attach">0</property>
+            <property name="width">8</property>
+            <property name="height">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow" id="radio_sw">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="shadow-type">in</property>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">4</property>
+            <property name="top-attach">4</property>
+            <property name="width">8</property>
+            <property name="height">4</property>
           </packing>
         </child>
       </object>

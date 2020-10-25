@@ -2,10 +2,14 @@ module SignalWin;
 
 extern (C) GObject * gtk_builder_get_object (GtkBuilder * builder, const char * name);
 
+import VideoPulsePlot;
+
 import glib.c.types;
 import gtk.c.types;
 
+import gtk.ScrolledWindow;
 import gtk.EditableIF;
+import gtk.Entry;
 
 import gtk.Builder;
 import gtk.Window;
@@ -23,17 +27,27 @@ class SignalWin : Window {
     }
 
     private void initValues() @trusted {
-
+        video_plot = new VideoPulsePlot();
+        (cast(ScrolledWindow)(uiBuilder.getObject("video_sw"))).add(video_plot);
     }
 
     private void connectSignals() @trusted {
         (cast(EditableIF)(uiBuilder.getObject("informativeness_en"))).addOnChanged(&onDigitEnChanged);
         (cast(EditableIF)(uiBuilder.getObject("frequency_en"))).addOnChanged(&onDigitEnChanged);
+        (cast(Entry)(uiBuilder.getObject("informativeness_en"))).addOnBackspace(&onBackspacePressed);
+        (cast(Entry)(uiBuilder.getObject("frequency_en"))).addOnBackspace(&onBackspacePressed);
 
         (cast(EditableIF)(uiBuilder.getObject("bit_sequence_en"))).addOnChanged(&onBinaryEnChanged);
+        (cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).addOnBackspace(&onBackspacePressed);
     }
 
-    public slot onDigitEnChanged(EditableIF entry) {
+    private void redrawPlot() @trusted {
+        video_plot.BitSequence((cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).getText());
+
+        video_plot.drawRequest();
+    }
+
+    protected slot onDigitEnChanged(EditableIF entry) @trusted {
         string input_sym = entry.getChars(entry.getPosition(), entry.getPosition() + 1);
         
         if(input_sym.length == 0) return;
@@ -44,9 +58,11 @@ class SignalWin : Window {
             entry.deleteText(0, -1); int zero = 0;
             entry.insertText(correct_out, cast(int)correct_out.length, zero);
         }
+
+        redrawPlot();
     }
 
-    public slot onBinaryEnChanged(EditableIF entry) {
+    protected slot onBinaryEnChanged(EditableIF entry) @trusted {
         string input_sym = entry.getChars(entry.getPosition(), entry.getPosition() + 1);
         
         if(input_sym.length == 0) return;
@@ -57,7 +73,17 @@ class SignalWin : Window {
             entry.deleteText(0, -1); int zero = 0;
             entry.insertText(correct_out, cast(int)correct_out.length, zero);
         }
+
+        redrawPlot();
     }
+
+    protected slot onBackspacePressed(Entry en) {
+        
+
+        redrawPlot();
+    }
+
+    private VideoPulsePlot video_plot;
 
     private Builder uiBuilder;
 }

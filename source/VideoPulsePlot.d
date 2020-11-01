@@ -1,3 +1,11 @@
+/**
+ * @defgroup   VIDEOPULSEPLOT Video Pulse Plot
+ *
+ * @brief      This file implements VideoPulsePlot widget.
+ *
+ * @author     KonstantIMP
+ * @date       2020
+ */
 module VideoPulsePlot;
 
 import cairo.c.types;
@@ -10,27 +18,56 @@ import cairo.Context;
 
 import std.conv;
 
-struct rgba_color {
+/// @brief This class describes a rgba color
+struct RgbaColor {
+    /// @brief Amount of red 
     ubyte r;
+    /// @brief Amount of green
     ubyte g;
+    /// @brief Amount of blue
     ubyte b;
+    /// @brief Amount of alpha chanell
     ubyte a;
 }
 
+/**
+ * @brief This class describes a VideoPulsePlot widget for GtkD.
+ * 
+ * It has two axes : Time and Voltage level, and draws bit sequence as '1' and '0'V 
+ */
 class VideoPulsePlot : DrawingArea {
-    public this() @trusted { super();
-        
+    /**
+     * @brief Constructs a new instance.
+     *
+     * Set parametrs at default values and connect signal
+     */
+    public this() @trusted { super();        
         reset(); addOnDraw(&onDraw);
     }
 
+    /**
+     * @brief Resets the object.
+     *
+     * Set parametrs at default values
+     */
     public void reset() @safe {
         min_x_width = 30; max_x_width = 50;
-        bit_sequence = ""; time_discrete = 0.03;
-        line_color = rgba_color (0x00, 0xff, 0x00, 0xff);
-        axes_color = rgba_color (0x00, 0x00, 0x00, 0xff);
-        background_color = rgba_color (0xff, 0xff, 0xff, 0xff);
+        bit_sequence = ""; time_discrete = 0.01;
+        line_color = RgbaColor (0x00, 0xff, 0x00, 0xff);
+        axes_color = RgbaColor (0x00, 0x00, 0x00, 0xff);
+        background_color = RgbaColor (0xff, 0xff, 0xff, 0xff);
     }
 
+    /**
+     * @brief Called on draw.
+     *
+     * Slot to draw plot (make background, axes, text and plot line)
+     *
+     * @param _context  The cairo context for drawing
+     * @param _widget   The drawing widget object
+     *
+     * @return true
+     */
     protected bool onDraw(Scoped!Context _context, Widget _widget) {
         _widget.setSizeRequest(0, 0);
 
@@ -145,6 +182,9 @@ class VideoPulsePlot : DrawingArea {
         return true;
     }
 
+    /**
+     * @brief  Request widget redraw.
+     */
     public void drawRequest() @trusted {
         setSizeRequest(0, 0);
         queueDraw();
@@ -166,15 +206,15 @@ class VideoPulsePlot : DrawingArea {
     @property double TimeDiscrete() { return time_discrete; }
     @property double TimeDiscrete(double dis) { return time_discrete = dis; } 
 
-    private rgba_color line_color;
-    @property rgba_color LineColor() { return line_color; }
-    @property rgba_color LineColor(rgba_color line_c) { return line_color = line_c; }
+    private RgbaColor line_color;
+    @property RgbaColor LineColor() { return line_color; }
+    @property RgbaColor LineColor(RgbaColor line_c) { return line_color = line_c; }
 
-    private rgba_color axes_color;
-    @property rgba_color AxesColor() { return background_color; }
-    @property rgba_color AxesColor(rgba_color axes_c) { return axes_color = axes_c; }
+    private RgbaColor axes_color;
+    @property RgbaColor AxesColor() { return background_color; }
+    @property RgbaColor AxesColor(RgbaColor axes_c) { return axes_color = axes_c; }
 
-    private rgba_color background_color;
-    @property rgba_color BackgroundColor() { return background_color; }
-    @property rgba_color BackgroundColor(rgba_color back_c) { return background_color = back_c; }
+    private RgbaColor background_color;
+    @property RgbaColor BackgroundColor() { return background_color; }
+    @property RgbaColor BackgroundColor(RgbaColor back_c) { return background_color = back_c; }
 }

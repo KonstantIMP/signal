@@ -3,6 +3,7 @@ module SignalWin;
 extern (C) GObject * gtk_builder_get_object (GtkBuilder * builder, const char * name);
 
 import VideoPulsePlot;
+import RadioPulsePlot;
 
 import glib.c.types;
 import gtk.c.types;
@@ -15,6 +16,9 @@ import gtk.Builder;
 import gtk.Window;
 
 import std.ascii;
+import std.conv;
+
+import std.stdio;
 
 alias slot = void;
 
@@ -29,22 +33,31 @@ class SignalWin : Window {
     private void initValues() @trusted {
         video_plot = new VideoPulsePlot();
         (cast(ScrolledWindow)(uiBuilder.getObject("video_sw"))).add(video_plot);
+
+        radio_plot = new RadioPulsePlot();
+        (cast(ScrolledWindow)(uiBuilder.getObject("radio_sw"))).add(radio_plot);
     }
 
     private void connectSignals() @trusted {
         (cast(EditableIF)(uiBuilder.getObject("informativeness_en"))).addOnChanged(&onDigitEnChanged);
         (cast(EditableIF)(uiBuilder.getObject("frequency_en"))).addOnChanged(&onDigitEnChanged);
-        (cast(Entry)(uiBuilder.getObject("informativeness_en"))).addOnBackspace(&onBackspacePressed);
-        (cast(Entry)(uiBuilder.getObject("frequency_en"))).addOnBackspace(&onBackspacePressed);
+        //(cast(Entry)(uiBuilder.getObject("informativeness_en"))).addOnBackspace(&onBackspacePressed);
+        //(cast(Entry)(uiBuilder.getObject("frequency_en"))).addOnBackspace(&onBackspacePressed);
 
         (cast(EditableIF)(uiBuilder.getObject("bit_sequence_en"))).addOnChanged(&onBinaryEnChanged);
-        (cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).addOnBackspace(&onBackspacePressed);
+        //(cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).addOnBackspace(&onBackspacePressed);
     }
 
     private void redrawPlot() @trusted {
         video_plot.BitSequence((cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).getText());
+        video_plot.TimeDiscrete(1 / to!double((cast(Entry)(uiBuilder.getObject("informativeness_en"))).getText()));
 
         video_plot.drawRequest();
+
+        radio_plot.BitSequence(video_plot.BitSequence());
+        radio_plot.TimeDiscrete(video_plot.TimeDiscrete());
+
+        radio_plot.drawRequest();
     }
 
     protected slot onDigitEnChanged(EditableIF entry) @trusted {
@@ -78,12 +91,11 @@ class SignalWin : Window {
     }
 
     protected slot onBackspacePressed(Entry en) {
-        
-
         redrawPlot();
     }
 
     private VideoPulsePlot video_plot;
+    private RadioPulsePlot radio_plot;
 
     private Builder uiBuilder;
 }

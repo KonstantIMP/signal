@@ -21,13 +21,13 @@ import std.conv;
 /// @brief This class describes a rgba color
 struct RgbaColor {
     /// @brief Amount of red 
-    ubyte r;
+    double r;
     /// @brief Amount of green
-    ubyte g;
+    double g;
     /// @brief Amount of blue
-    ubyte b;
+    double b;
     /// @brief Amount of alpha chanell
-    ubyte a;
+    double a;
 }
 
 /**
@@ -53,9 +53,9 @@ class VideoPulsePlot : DrawingArea {
     public void reset() @safe {
         min_x_width = 30; max_x_width = 50;
         bit_sequence = ""; time_discrete = 0.01;
-        line_color = RgbaColor (0x00, 0xff, 0x00, 0xff);
-        axes_color = RgbaColor (0x00, 0x00, 0x00, 0xff);
-        background_color = RgbaColor (0xff, 0xff, 0xff, 0xff);
+        line_color = RgbaColor (0.0, 1.0, 0.0, 1.0);
+        axes_color = RgbaColor (0.0, 0.0, 0.0, 1.0);
+        background_color = RgbaColor (1.0, 1.0, 1.0, 1.0);
     }
 
     /**
@@ -86,19 +86,19 @@ class VideoPulsePlot : DrawingArea {
         } _widget.getAllocation(_w_alloc);
 
         /// Drawing background color
-        _context.setSourceRgba(cast(double)(background_color.r / 0xff),
-                               cast(double)(background_color.g / 0xff),
-                               cast(double)(background_color.b / 0xff),
-                               cast(double)(background_color.a / 0xff));
+        _context.setSourceRgba(background_color.r,
+                               background_color.g,
+                               background_color.b,
+                               background_color.a);
         _context.paint();
 
         _context.setLineWidth(2);
 
         /// Drawing axes
-        _context.setSourceRgba(cast(double)(axes_color.r / 0xff),
-                               cast(double)(axes_color.g / 0xff),
-                               cast(double)(axes_color.b / 0xff),
-                               cast(double)(axes_color.a / 0xff));
+        _context.setSourceRgba(axes_color.r,
+                               axes_color.g,
+                               axes_color.b,
+                               axes_color.a);
         /// Drawing Y axis
         _context.moveTo(20, _w_alloc.height - 10); _context.lineTo(20, 10);
         _context.relLineTo(2, 5); _context.relLineTo(-2, -5);
@@ -155,10 +155,10 @@ class VideoPulsePlot : DrawingArea {
 
         /// Line drawing
         if(bit_sequence.length != 0) {
-            _context.setSourceRgba(cast(double)(line_color.r / 0xff),
-                                   cast(double)(line_color.g / 0xff),
-                                   cast(double)(line_color.b / 0xff),
-                                   cast(double)(line_color.a / 0xff));
+            _context.setSourceRgba(line_color.r,
+                                   line_color.g,
+                                   line_color.b,
+                                   line_color.a);
 
             if(bit_sequence[0] == '1') _context.moveTo(20, _w_alloc.height / 2);
             else _context.moveTo(20, _w_alloc.height - 20);

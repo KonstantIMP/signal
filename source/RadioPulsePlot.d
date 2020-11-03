@@ -22,13 +22,13 @@ import std.math;
 /// @brief      This class describes a rgba color
 struct RgbaColor {
     /// @brief Amount of red 
-    ubyte r;
+    double r;
     /// @brief Amount of green
-    ubyte g;
+    double g;
     /// @brief Amount of blue
-    ubyte b;
+    double b;
     /// @brief Amount of alpha chanell
-    ubyte a;
+    double a;
 }
 
 enum modType {
@@ -42,11 +42,11 @@ class RadioPulsePlot : DrawingArea {
     }
 
     public void reset() @safe {
-        f_width = 20; mod_type = modType.phase_mod; 
+        f_width = 20; mod_type = modType.frecuency_mod; 
         bit_sequence = ""; frequency = 100; time_discrete = 0.01;
-        line_color = RgbaColor (0x00, 0xff, 0x00, 0xff);
-        axes_color = RgbaColor (0x00, 0x00, 0x00, 0xff);
-        background_color = RgbaColor (0xff, 0xff, 0xff, 0xff);
+        line_color = RgbaColor (0.0, 1.0, 0.0, 1.0);
+        axes_color = RgbaColor (0.0, 0.0, 0.0, 1.0);
+        background_color = RgbaColor (1.0, 1.0, 1.0, 1.0);
     }
 
     protected bool onDraw(Scoped!Context _context, Widget _widget) {
@@ -65,17 +65,17 @@ class RadioPulsePlot : DrawingArea {
         } _widget.getAllocation(_w_alloc);        
 
         /// Drawing background color
-        _context.setSourceRgba(cast(double)(background_color.r / 0xff),
-                               cast(double)(background_color.g / 0xff),
-                               cast(double)(background_color.b / 0xff),
-                               cast(double)(background_color.a / 0xff));
+        _context.setSourceRgba(background_color.r,
+                               background_color.g,
+                               background_color.b,
+                               background_color.a);
         _context.paint(); _context.setLineWidth(2);
 
         /// Drawing axes
-        _context.setSourceRgba(cast(double)(axes_color.r / 0xff),
-                               cast(double)(axes_color.g / 0xff),
-                               cast(double)(axes_color.b / 0xff),
-                               cast(double)(axes_color.a / 0xff));
+        _context.setSourceRgba(axes_color.r,
+                               axes_color.g,
+                               axes_color.b,
+                               axes_color.a);
         /// Drawing X axis
         _context.moveTo(10, _w_alloc.height / 2);
         _context.relLineTo(_w_alloc.width - 20, 0);
@@ -139,10 +139,10 @@ class RadioPulsePlot : DrawingArea {
         if(bit_sequence.length != 0) {
             _context.setLineWidth(1);
             _context.moveTo(20, _w_alloc.height / 2);
-            _context.setSourceRgba(cast(double)(line_color.r / 0xff),
-                                   cast(double)(line_color.g / 0xff),
-                                   cast(double)(line_color.b / 0xff),
-                                   cast(double)(line_color.a / 0xff));
+            _context.setSourceRgba(line_color.r,
+                                   line_color.g,
+                                   line_color.b,
+                                   line_color.a);
 
             bool last_state = true;  uint need_draw;
             need_draw = cast(uint)(round(time_discrete * frequency));
@@ -165,12 +165,32 @@ class RadioPulsePlot : DrawingArea {
                         else 
                             _context.arcNegative(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
 
+                        _context.relLineTo(0, line_height * (last_state == true ? 1 : -1));
+                        last_state = !last_state;
+                    }
+                }
+            }
+            else {
+                double line_height = cast(double)(_w_alloc.height / 3);
+                line_height = line_height - cast(double)(actual_size) / cast(double)(need_draw) / 4;
 
+                for(size_t i = 0; i < bit_sequence.length; i++) {
+                    if(i != 0 && bit_sequence[i - 1] != bit_sequence[i]) last_state = !last_state;
+
+                    for(int j = 0; j < need_draw * 2; j++) {
+                        _context.relLineTo(0, line_height * (last_state == true ? -1 : 1));
+
+                        double cur_x, cur_y; _context.getCurrentPoint(cur_x, cur_y);
+                        if(last_state)
+                            _context.arc(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
+                        else 
+                            _context.arcNegative(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
 
                         _context.relLineTo(0, line_height * (last_state == true ? 1 : -1));
                         last_state = !last_state;
                     }
                 }
+
             } _context.stroke();
         }
 

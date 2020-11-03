@@ -17,6 +17,7 @@ import gtk.Widget;
 import cairo.Context;
 
 import std.conv;
+import std.math;
 
 /// @brief      This class describes a rgba color
 struct RgbaColor {
@@ -41,7 +42,7 @@ class RadioPulsePlot : DrawingArea {
     }
 
     public void reset() @safe {
-        f_width = 20; mod_type = modType.frecuency_mod; 
+        f_width = 20; mod_type = modType.phase_mod; 
         bit_sequence = ""; frequency = 100; time_discrete = 0.01;
         line_color = RgbaColor (0x00, 0xff, 0x00, 0xff);
         axes_color = RgbaColor (0x00, 0x00, 0x00, 0xff);
@@ -136,7 +137,41 @@ class RadioPulsePlot : DrawingArea {
         /// Drawing plot line
         _context.rotate(- 3.1415 / 2); _context.setLineWidth(2);
         if(bit_sequence.length != 0) {
-            
+            _context.setLineWidth(1);
+            _context.moveTo(20, _w_alloc.height / 2);
+            _context.setSourceRgba(cast(double)(line_color.r / 0xff),
+                                   cast(double)(line_color.g / 0xff),
+                                   cast(double)(line_color.b / 0xff),
+                                   cast(double)(line_color.a / 0xff));
+
+            bool last_state = true;  uint need_draw;
+            need_draw = cast(uint)(round(time_discrete * frequency));
+
+            if(mod_type == modType.phase_mod) {
+                for(size_t i = 0; i < bit_sequence.length; i++) {
+                    double line_height;
+
+                    if(bit_sequence[i] == '1') line_height = cast(double)(_w_alloc.height / 3);
+                    else line_height = cast(double)(_w_alloc.height / 6);
+
+                    line_height = line_height - cast(double)(actual_size) / cast(double)(need_draw) / 4; 
+
+                    for(int j = 0; j < need_draw * 2; j++) {
+                        _context.relLineTo(0, line_height * (last_state == true ? -1 : 1));
+
+                        double cur_x, cur_y; _context.getCurrentPoint(cur_x, cur_y);
+                        if(last_state)
+                            _context.arc(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
+                        else 
+                            _context.arcNegative(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
+
+
+
+                        _context.relLineTo(0, line_height * (last_state == true ? 1 : -1));
+                        last_state = !last_state;
+                    }
+                }
+            } _context.stroke();
         }
 
         return true;

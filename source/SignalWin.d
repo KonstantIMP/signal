@@ -9,6 +9,7 @@ import glib.c.types;
 import gtk.c.types;
 
 import gtk.ScrolledWindow;
+import gtk.ComboBoxText;
 import gtk.EditableIF;
 import gtk.Entry;
 
@@ -46,6 +47,8 @@ class SignalWin : Window {
 
         (cast(EditableIF)(uiBuilder.getObject("bit_sequence_en"))).addOnChanged(&onBinaryEnChanged);
         //(cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).addOnBackspace(&onBackspacePressed);
+
+        (cast(ComboBoxText)(uiBuilder.getObject("mod_cb"))).addOnChanged(&onModTypeChanged);
     }
 
     private void redrawPlot() @trusted {
@@ -56,6 +59,7 @@ class SignalWin : Window {
 
         radio_plot.BitSequence(video_plot.BitSequence());
         radio_plot.TimeDiscrete(video_plot.TimeDiscrete());
+        radio_plot.Frequency(to!(uint)((cast(Entry)(uiBuilder.getObject("frequency_en"))).getText()));
 
         radio_plot.drawRequest();
     }
@@ -91,6 +95,13 @@ class SignalWin : Window {
     }
 
     protected slot onBackspacePressed(Entry en) {
+        redrawPlot();
+    }
+
+    protected slot onModTypeChanged(ComboBoxText text_cb) {
+        if(text_cb.getActiveId() == "frequency_mod") radio_plot.ModType(modType.frecuency_mod);
+        if(text_cb.getActiveId() == "phase_mod") radio_plot.ModType(modType.phase_mod);
+
         redrawPlot();
     }
 

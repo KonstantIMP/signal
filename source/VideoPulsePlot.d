@@ -1,5 +1,5 @@
 /**
- * @defgroup   VIDEOPULSEPLOT Video Pulse Plot
+ * @file VideoPulsePlot.d
  *
  * @brief      This file implements VideoPulsePlot widget.
  *
@@ -56,6 +56,14 @@ class VideoPulsePlot : DrawingArea {
         line_color = RgbaColor (0.0, 1.0, 0.0, 1.0);
         axes_color = RgbaColor (0.0, 0.0, 0.0, 1.0);
         background_color = RgbaColor (1.0, 1.0, 1.0, 1.0);
+    }
+
+    /**
+     * @brief  Request widget redraw.
+     */
+    public void drawRequest() @trusted {
+        setSizeRequest(0, 0);
+        queueDraw();
     }
 
     /**
@@ -180,14 +188,6 @@ class VideoPulsePlot : DrawingArea {
         }
 
         return true;
-    }
-
-    /**
-     * @brief  Request widget redraw.
-     */
-    public void drawRequest() @trusted {
-        setSizeRequest(0, 0);
-        queueDraw();
     }
 
     private ubyte min_x_width;

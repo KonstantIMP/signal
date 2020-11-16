@@ -106,9 +106,9 @@ class RadioPulsePlot : DrawingArea {
         /// Making inscriptions
         cairo_text_extents_t extents;
         /// Plot name
-        _context.setFontSize(12); _context.textExtents("График радиоканала", &extents);
+        /*_context.setFontSize(12); _context.textExtents("График радиоканала", &extents);
         _context.moveTo(_w_alloc.width - 5 - extents.width, 12);
-        _context.showText("График радиоканала");
+        _context.showText("График радиоканала");*/
         /// X axis name
         _context.setFontSize(10);
         _context.moveTo(_w_alloc.width - 35, _w_alloc.height / 2 + 12);

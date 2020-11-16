@@ -134,9 +134,9 @@ class VideoPulsePlot : DrawingArea {
         /// Making inscriptions
         cairo_text_extents_t extents;
         /// Plot name
-        _context.setFontSize(12); _context.textExtents("График видеоимпульса", &extents);
+        /*_context.setFontSize(12); _context.textExtents("График видеоимпульса", &extents);
         _context.moveTo(_w_alloc.width - 5 - extents.width, 12);
-        _context.showText("График видеоимпульса");
+        _context.showText("График видеоимпульса");*/
         /// X axis name
         _context.setFontSize(10);
         _context.moveTo(_w_alloc.width - 35, _w_alloc.height - 5);

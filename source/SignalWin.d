@@ -11,6 +11,8 @@ import gtk.c.types;
 import gtk.ScrolledWindow;
 import gtk.ComboBoxText;
 import gtk.EditableIF;
+import gtk.Overlay;
+import gtk.Widget;
 import gtk.Entry;
 
 import gtk.Builder;
@@ -32,9 +34,21 @@ class SignalWin : Window {
     }
 
     private void initValues() @trusted {
+        uiBuilder.getObject("video_msg").setProperty("margin", 5);
+        uiBuilder.getObject("video_msg").setProperty("halign", GtkAlign.END);
+        uiBuilder.getObject("video_msg").setProperty("valign", GtkAlign.START);
+        (cast(Overlay)(uiBuilder.getObject("video_over"))).addOverlay(
+            (cast(Widget)(uiBuilder.getObject("video_msg")))
+        );
         video_plot = new VideoPulsePlot();
         (cast(ScrolledWindow)(uiBuilder.getObject("video_sw"))).add(video_plot);
 
+        uiBuilder.getObject("radio_msg").setProperty("margin", 5);
+        uiBuilder.getObject("radio_msg").setProperty("halign", GtkAlign.END);
+        uiBuilder.getObject("radio_msg").setProperty("valign", GtkAlign.START);
+        (cast(Overlay)(uiBuilder.getObject("radio_over"))).addOverlay(
+            (cast(Widget)(uiBuilder.getObject("radio_msg")))
+        );
         radio_plot = new RadioPulsePlot();
         (cast(ScrolledWindow)(uiBuilder.getObject("radio_sw"))).add(radio_plot);
     }

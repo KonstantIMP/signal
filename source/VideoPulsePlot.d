@@ -11,16 +11,16 @@ module VideoPulsePlot;
 import cairo.c.types;
 import gtk.c.types;
 
-import gtk.DrawingArea;
 import gtk.ScrolledWindow;
-import gtk.Label;
+import gtk.DrawingArea;
 import gtk.Overlay;
 import gtk.Widget;
-
-import gtk.Button;
+import gtk.Label;
 
 import cairo.Context;
 
+import std.string;
+import std.stdio;
 import std.conv;
 
 /// @brief This class describes a rgba color
@@ -50,16 +50,17 @@ class VideoPulsePlot : Overlay {
         plot_area = new DrawingArea();
         plot_sw = new ScrolledWindow();
 
-        createUI(); reset();
+        createUI(); resetPlot();
         plot_area.addOnDraw(&onDraw);
     }
 
-    public void reset() @safe {
+    public void resetPlot() @trusted {
         min_x_width = 30; max_x_width = 50;
         bit_sequence = ""; time_discrete = 0.01;
         line_color = RgbaColor (0.0, 1.0, 0.0, 1.0);
         axes_color = RgbaColor (0.0, 0.0, 0.0, 1.0);
         background_color = RgbaColor (1.0, 1.0, 1.0, 1.0);
+        plot_name.setMarkup("<span size='small' foreground='#000000ff' background='#ffffffff'>График видеоимпульса</span>");
     }
 
     public void drawRequest() @trusted {
@@ -69,10 +70,7 @@ class VideoPulsePlot : Overlay {
 
     private void createUI() @trusted {
         add(cast(Widget)(plot_sw));
-        plot_sw.setProperty("margin", 0);
-        plot_sw.setProperty("halign", GtkAlign.FILL);
-        plot_sw.setProperty("valign", GtkAlign.FILL);
-        
+        plot_sw.add(cast(Widget)(plot_area)); 
         
         plot_name.setUseMarkup(true);
         plot_name.setMarkup("<span size='small' foreground='#000000' background='#ffffff'>График видеоимпульса</span>");
@@ -81,9 +79,6 @@ class VideoPulsePlot : Overlay {
         plot_name.setProperty("margin", 5);
         plot_name.setProperty("halign", GtkAlign.END);
         plot_name.setProperty("valign", GtkAlign.START); 
-
-        
-        plot_sw.add(cast(Widget)(plot_area));
     }
 
     protected bool onDraw(Scoped!Context _context, Widget _widget) {
@@ -209,22 +204,48 @@ class VideoPulsePlot : Overlay {
     @property ubyte maxXWidth(ubyte max_x) { return max_x_width = max_x; }
 
     private string bit_sequence; 
-    @property string BitSequence() { return bit_sequence; }
-    @property string BitSequence(string bits) { return bit_sequence = bits; }
+    @property string bitSequence() { return bit_sequence; }
+    @property string bitSequence(string bits) { return bit_sequence = bits; }
 
     private double time_discrete;
-    @property double TimeDiscrete() { return time_discrete; }
-    @property double TimeDiscrete(double dis) { return time_discrete = dis; } 
+    @property double timeDiscrete() { return time_discrete; }
+    @property double timeDiscrete(double dis) { return time_discrete = dis; } 
 
     private RgbaColor line_color;
-    @property RgbaColor LineColor() { return line_color; }
-    @property RgbaColor LineColor(RgbaColor line_c) { return line_color = line_c; }
+    @property RgbaColor lineColor() { return line_color; }
+    @property RgbaColor lineColor(RgbaColor line_c) { return line_color = line_c; }
 
     private RgbaColor axes_color;
-    @property RgbaColor AxesColor() { return background_color; }
-    @property RgbaColor AxesColor(RgbaColor axes_c) { return axes_color = axes_c; }
+    @property RgbaColor axesColor() { return background_color; }
+    @property RgbaColor axesColor(RgbaColor axes_c) {
+        string f_color = rightJustify(to!string(toChars!16(cast(uint)(axes_c.r * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(axes_c.g * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(axes_c.b * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(axes_c.a * 255))), 2, '0');
+        string b_color = rightJustify(to!string(toChars!16(cast(uint)(background_color.r * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(background_color.g * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(background_color.b * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(background_color.a * 255))), 2, '0');
+
+        plot_name.setMarkup("<span size='small' foreground='#" ~ f_color ~ "' background='#" ~ b_color ~ "'>График видеоимпульса</span>");
+
+        return axes_color = axes_c;    
+    }
 
     private RgbaColor background_color;
-    @property RgbaColor BackgroundColor() { return background_color; }
-    @property RgbaColor BackgroundColor(RgbaColor back_c) { return background_color = back_c; }
+    @property RgbaColor backgroundColor() { return background_color; }
+    @property RgbaColor backgroundColor(RgbaColor back_c) {
+        string b_color = rightJustify(to!string(toChars!16(cast(uint)(back_c.r * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(back_c.g * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(back_c.b * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(back_c.a * 255))), 2, '0');
+        string f_color = rightJustify(to!string(toChars!16(cast(uint)(axes_color.r * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(axes_color.g * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(axes_color.b * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(axes_color.a * 255))), 2, '0');
+
+        plot_name.setMarkup("<span size='small' foreground='#" ~ f_color ~ "' background='#" ~ b_color ~ "'>График видеоимпульса</span>");
+
+        return background_color = back_c;
+    }
 }

@@ -37,15 +37,6 @@ class SignalWin : Window {
     }
 
     private void initValues() @trusted {
-        /*uiBuilder.getObject("video_msg").setProperty("margin", 5);
-        uiBuilder.getObject("video_msg").setProperty("halign", GtkAlign.END);
-        uiBuilder.getObject("video_msg").setProperty("valign", GtkAlign.START);
-        (cast(Overlay)(uiBuilder.getObject("video_over"))).addOverlay(
-            (cast(Widget)(uiBuilder.getObject("video_msg")))
-        );
-        video_plot = new VideoPulsePlot();
-        (cast(ScrolledWindow)(uiBuilder.getObject("video_sw"))).add(video_plot);*/
-
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(video_plot, 4, 0, 8, 4);
 
         uiBuilder.getObject("radio_msg").setProperty("margin", 5);
@@ -71,13 +62,13 @@ class SignalWin : Window {
     }
 
     private void redrawPlot() @trusted {
-        /*video_plot.BitSequence((cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).getText());
-        video_plot.TimeDiscrete(1 / to!double((cast(Entry)(uiBuilder.getObject("informativeness_en"))).getText()));
+        video_plot.bitSequence((cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).getText());
+        video_plot.timeDiscrete(1 / to!double((cast(Entry)(uiBuilder.getObject("informativeness_en"))).getText()));
 
         video_plot.drawRequest();
 
-        radio_plot.BitSequence(video_plot.BitSequence());
-        radio_plot.TimeDiscrete(video_plot.TimeDiscrete());*/
+        radio_plot.BitSequence(video_plot.bitSequence());
+        radio_plot.TimeDiscrete(video_plot.timeDiscrete());
         radio_plot.Frequency(to!(uint)((cast(Entry)(uiBuilder.getObject("frequency_en"))).getText()));
 
         radio_plot.drawRequest();

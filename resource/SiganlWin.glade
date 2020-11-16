@@ -130,31 +130,6 @@
           </packing>
         </child>
         <child>
-          <object class="GtkOverlay" id="video_over">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <child>
-              <object class="GtkScrolledWindow" id="video_sw">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="shadow-type">in</property>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="index">-1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left-attach">4</property>
-            <property name="top-attach">0</property>
-            <property name="width">8</property>
-            <property name="height">4</property>
-          </packing>
-        </child>
-        <child>
           <object class="GtkOverlay" id="radio_over">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
@@ -179,6 +154,9 @@
             <property name="height">4</property>
           </packing>
         </child>
+        <child>
+          <placeholder/>
+        </child>
       </object>
     </child>
   </object>
@@ -186,12 +164,6 @@
     <property name="visible">True</property>
     <property name="can-focus">False</property>
     <property name="label" translatable="yes">&lt;span foreground='#000000' background='#FFFFFF' font_size='small'&gt;График радиоканала&lt;/span&gt;</property>
-    <property name="use-markup">True</property>
-  </object>
-  <object class="GtkLabel" id="video_msg">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="label" translatable="yes">&lt;span foreground='#000000' background='#FFFFFF' font_size='small'&gt;График видеоимпульса&lt;/span&gt;</property>
     <property name="use-markup">True</property>
   </object>
 </interface>

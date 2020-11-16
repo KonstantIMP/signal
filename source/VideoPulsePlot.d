@@ -12,7 +12,12 @@ import cairo.c.types;
 import gtk.c.types;
 
 import gtk.DrawingArea;
+import gtk.ScrolledWindow;
+import gtk.Label;
+import gtk.Overlay;
 import gtk.Widget;
+
+import gtk.Button;
 
 import cairo.Context;
 
@@ -35,21 +40,20 @@ struct RgbaColor {
  * 
  * It has two axes : Time and Voltage level, and draws bit sequence as '1' and '0'V 
  */
-class VideoPulsePlot : DrawingArea {
-    /**
-     * @brief Constructs a new instance.
-     *
-     * Set parametrs at default values and connect signal
-     */
-    public this() @trusted { super();        
-        reset(); addOnDraw(&onDraw);
+class VideoPulsePlot : Overlay {
+    private Label plot_name;
+    private DrawingArea plot_area;
+    private ScrolledWindow plot_sw;
+
+    public this() @trusted { super();
+        plot_name = new Label("");
+        plot_area = new DrawingArea();
+        plot_sw = new ScrolledWindow();
+
+        createUI(); reset();
+        plot_area.addOnDraw(&onDraw);
     }
 
-    /**
-     * @brief Resets the object.
-     *
-     * Set parametrs at default values
-     */
     public void reset() @safe {
         min_x_width = 30; max_x_width = 50;
         bit_sequence = ""; time_discrete = 0.01;
@@ -58,24 +62,30 @@ class VideoPulsePlot : DrawingArea {
         background_color = RgbaColor (1.0, 1.0, 1.0, 1.0);
     }
 
-    /**
-     * @brief  Request widget redraw.
-     */
     public void drawRequest() @trusted {
-        setSizeRequest(0, 0);
-        queueDraw();
+        plot_area.setSizeRequest(0, 0);
+        plot_area.queueDraw();
     }
 
-    /**
-     * @brief Called on draw.
-     *
-     * Slot to draw plot (make background, axes, text and plot line)
-     *
-     * @param _context  The cairo context for drawing
-     * @param _widget   The drawing widget object
-     *
-     * @return true
-     */
+    private void createUI() @trusted {
+        add(cast(Widget)(plot_sw));
+        plot_sw.setProperty("margin", 0);
+        plot_sw.setProperty("halign", GtkAlign.FILL);
+        plot_sw.setProperty("valign", GtkAlign.FILL);
+        
+        
+        plot_name.setUseMarkup(true);
+        plot_name.setMarkup("<span size='small' foreground='#000000' background='#ffffff'>График видеоимпульса</span>");
+
+        addOverlay(cast(Widget)(plot_name));
+        plot_name.setProperty("margin", 5);
+        plot_name.setProperty("halign", GtkAlign.END);
+        plot_name.setProperty("valign", GtkAlign.START); 
+
+        
+        plot_sw.add(cast(Widget)(plot_area));
+    }
+
     protected bool onDraw(Scoped!Context _context, Widget _widget) {
         _widget.setSizeRequest(0, 0);
 

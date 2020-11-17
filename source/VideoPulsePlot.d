@@ -89,70 +89,10 @@ class VideoPulsePlot : Overlay {
         drawBackground(_context);
         drawAxes(_context, _w_alloc);
         
-        /// Drawin 1V value
-        _context.moveTo(16, _w_alloc.height / 2);
-        _context.relLineTo(8, 0); _context.stroke();
-        ///Drawing X value
-        _context.moveTo(20 + _actual_size, _w_alloc.height - 16);
-        _context.relLineTo(0, -8);
-        if(bit_sequence.length != 0) {
-            for(size_t i = 0; i < bit_sequence.length - 1; i++) {
-                _context.relMoveTo(_actual_size, 8);
-                _context.relLineTo(0, -8);
-            }
-        } _context.stroke();
-
-        /// Making inscriptions
-        cairo_text_extents_t extents;
-        /// X axis name
-        _context.setFontSize(10);
-        _context.moveTo(_w_alloc.width - 35, _w_alloc.height - 5);
-        _context.showText("t(сек.)");
-        /// Y axis name
-        _context.setFontSize(10);
-        _context.moveTo(5, 10); _context.showText("А");
-        _context.moveTo(3, 20); _context.showText("(В)");
-        /// Y 1V value
-        _context.moveTo(5, _w_alloc.height / 2 + 3);
-        _context.showText("1");
-        /// X values
-        _context.textExtents(to!string(time_discrete), &extents);
-        _context.moveTo(20 + _actual_size - extents.width / 2, _w_alloc.height - 5);
-        _context.showText(to!string(time_discrete));
-        if(bit_sequence.length != 0) {
-            for(size_t i = 0; i < bit_sequence.length - 1; i++) {
-                double act_dis = time_discrete * (i + 2);
-                _context.textExtents(to!string(act_dis), &extents);
-                _context.moveTo(20 + (_actual_size * (i + 2)) - extents.width / 2, _w_alloc.height - 5);
-                _context.showText(to!string(act_dis));
-            }
-        }
-
-        /// Line drawing
-        if(bit_sequence.length != 0) {
-            _context.setSourceRgba(line_color.r,
-                                   line_color.g,
-                                   line_color.b,
-                                   line_color.a);
-
-            if(bit_sequence[0] == '1') _context.moveTo(20, _w_alloc.height / 2);
-            else _context.moveTo(20, _w_alloc.height - 20);
-
-            _context.relLineTo(_actual_size, 0);
-
-            for(size_t i = 1; i < bit_sequence.length; i++) {
-                if(bit_sequence[i - 1] != bit_sequence[i]) {
-                    _context.relLineTo(0, (_w_alloc.height / 2 - 20) * (bit_sequence[i] == '1' ? -1 : 1));                    
-                }
-                _context.relLineTo(_actual_size, 0);
-            }
-
-            if(bit_sequence[bit_sequence.length - 1] == '1') {
-                _context.relLineTo(0, (_w_alloc.height / 2 - 20));
-            }
-
-            _context.stroke();
-        }
+        makeAxesMarkup(_context, _w_alloc, _actual_size);
+        makeInscriptions(_context, _w_alloc, _actual_size);
+        
+        if(bit_sequence.length != 0) drawPlotLine(_context, _w_alloc, _actual_size);
 
         return true;
     }
@@ -178,7 +118,7 @@ class VideoPulsePlot : Overlay {
         cairo_context.paint();
     }
 
-    private void drawAxes(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
+    protected void drawAxes(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
         cairo_context.setLineWidth(2);
         cairo_context.setSourceRgba(axes_color.r,
                                     axes_color.g,
@@ -189,7 +129,7 @@ class VideoPulsePlot : Overlay {
         drawYAxis(cairo_context, w_alloc);
     }
 
-    private void drawXAxis(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
+    protected void drawXAxis(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
         cairo_context.moveTo(10, w_alloc.height - 20);
         cairo_context.relLineTo(w_alloc.width - 20, 0);
         cairo_context.relLineTo(-5, 2);  cairo_context.relLineTo(5, -2);
@@ -197,10 +137,98 @@ class VideoPulsePlot : Overlay {
         cairo_context.stroke();
     }
 
-    private void drawYAxis(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
+    protected void drawYAxis(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
         cairo_context.moveTo(20, w_alloc.height - 10); cairo_context.lineTo(20, 10);
         cairo_context.relLineTo(2, 5);  cairo_context.relLineTo(-2, -5);
         cairo_context.relLineTo(-2, 5); cairo_context.relLineTo(2, -5);
+        cairo_context.stroke();
+    }
+
+    protected void makeAxesMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) {
+        makeXAxisMarkup(cairo_context, w_alloc, actual_size);
+        makeYAxisMarkup(cairo_context, w_alloc);
+    }
+
+    protected void makeXAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) {
+        cairo_context.moveTo(20 + actual_size, w_alloc.height - 16);
+        cairo_context.relLineTo(0, -8);
+        if(bit_sequence.length != 0) {
+            for(size_t i = 0; i < bit_sequence.length - 1; i++) {
+                cairo_context.relMoveTo(actual_size, 8);
+                cairo_context.relLineTo(0, -8);
+            }
+        } cairo_context.stroke();
+    }
+
+    protected void makeYAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
+        cairo_context.moveTo(16, w_alloc.height / 2);
+        cairo_context.relLineTo(8, 0); cairo_context.stroke();
+    }
+
+    protected void makeInscriptions(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) {
+        textYAxisName(cairo_context, w_alloc);
+        textYAxisMarkup(cairo_context, w_alloc);
+        textXAxisName(cairo_context, w_alloc, actual_size);
+        textXAxisMarkup(cairo_context, w_alloc, actual_size);
+    }
+
+    protected void textYAxisName(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
+        cairo_context.setFontSize(10);
+        cairo_context.moveTo(5, 10); cairo_context.showText("А");
+        cairo_context.moveTo(3, 20); cairo_context.showText("(В)");
+    }
+
+    protected void textYAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
+        cairo_context.moveTo(5, w_alloc.height / 2 + 3);
+        cairo_context.showText("1");
+    }
+
+    protected void textXAxisName(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) {
+        cairo_context.setFontSize(10);
+        cairo_context.moveTo(w_alloc.width - 35, w_alloc.height - 5);
+        cairo_context.showText("t(сек.)");
+    }
+
+    protected void textXAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) {
+        cairo_text_extents_t text_extent;
+
+        cairo_context.textExtents(to!string(time_discrete), &text_extent);
+        cairo_context.moveTo(20 + actual_size - text_extent.width / 2, w_alloc.height - 5);
+        cairo_context.showText(to!string(time_discrete));
+
+        if(bit_sequence.length != 0) {
+            for(size_t i = 0; i < bit_sequence.length - 1; i++) {
+                double act_dis = time_discrete * (i + 2);
+                cairo_context.textExtents(to!string(act_dis), &text_extent);
+                cairo_context.moveTo(20 + (actual_size * (i + 2)) - text_extent.width / 2, w_alloc.height - 5);
+                cairo_context.showText(to!string(act_dis));
+            }
+        }
+    }
+
+    protected void drawPlotLine(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) {
+        cairo_context.setSourceRgba(line_color.r,
+                                    line_color.g,
+                                    line_color.b,
+                                    line_color.a);
+
+        if(bit_sequence[0] == '1') cairo_context.moveTo(20, w_alloc.height / 2);
+        else cairo_context.moveTo(20, w_alloc.height - 20);
+
+        uint delta_height = w_alloc.height / 2 - 20;
+        cairo_context.relLineTo(actual_size, 0);
+
+        for(size_t i = 1; i < bit_sequence.length; i++) {
+            if(bit_sequence[i - 1] != bit_sequence[i]) {
+                cairo_context.relLineTo(0, (bit_sequence[i] == '1' ? -delta_height : delta_height));                    
+            }
+            cairo_context.relLineTo(actual_size, 0);
+        }
+
+        if(bit_sequence[bit_sequence.length - 1] == '1') {
+            cairo_context.relLineTo(0, delta_height);
+        }
+
         cairo_context.stroke();
     }
 

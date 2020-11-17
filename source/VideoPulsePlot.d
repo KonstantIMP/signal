@@ -64,6 +64,7 @@ class VideoPulsePlot : Overlay {
     }
 
     public void drawRequest() @trusted {
+        plot_area.setSizeRequest(0, 0);
         plot_area.queueDraw();
     }
 
@@ -85,32 +86,9 @@ class VideoPulsePlot : Overlay {
 
         sizeAllocate(_widget, _w_alloc, _actual_size);
 
+        drawBackground(_context);
+        drawAxes(_context, _w_alloc);
         
-        /// Drawing background color
-        _context.setSourceRgba(background_color.r,
-                               background_color.g,
-                               background_color.b,
-                               background_color.a);
-        _context.paint();
-
-        _context.setLineWidth(2);
-
-        /// Drawing axes
-        _context.setSourceRgba(axes_color.r,
-                               axes_color.g,
-                               axes_color.b,
-                               axes_color.a);
-        /// Drawing Y axis
-        _context.moveTo(20, _w_alloc.height - 10); _context.lineTo(20, 10);
-        _context.relLineTo(2, 5); _context.relLineTo(-2, -5);
-        _context.relLineTo(-2, 5); _context.relLineTo(2, -5);
-        _context.stroke();
-        /// Drawing X axis
-        _context.moveTo(10, _w_alloc.height - 20);
-        _context.relLineTo(_w_alloc.width - 20, 0);
-        _context.relLineTo(-5, 2); _context.relLineTo(5, -2);
-        _context.relLineTo(-5, -2); _context.relLineTo(5, 2);
-        _context.stroke();
         /// Drawin 1V value
         _context.moveTo(16, _w_alloc.height / 2);
         _context.relLineTo(8, 0); _context.stroke();
@@ -190,6 +168,40 @@ class VideoPulsePlot : Overlay {
 
             w.setSizeRequest(cast(int)(actual_size * bit_sequence.length + 65), w_alloc.height);
         } w.getAllocation(w_alloc);
+    }
+
+    protected void drawBackground(ref Scoped!Context cairo_context) {
+        cairo_context.setSourceRgba(background_color.r,
+                                    background_color.g,
+                                    background_color.b,
+                                    background_color.a);
+        cairo_context.paint();
+    }
+
+    private void drawAxes(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
+        cairo_context.setLineWidth(2);
+        cairo_context.setSourceRgba(axes_color.r,
+                                    axes_color.g,
+                                    axes_color.b,
+                                    axes_color.a);
+
+        drawXAxis(cairo_context, w_alloc);
+        drawYAxis(cairo_context, w_alloc);
+    }
+
+    private void drawXAxis(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
+        cairo_context.moveTo(10, w_alloc.height - 20);
+        cairo_context.relLineTo(w_alloc.width - 20, 0);
+        cairo_context.relLineTo(-5, 2);  cairo_context.relLineTo(5, -2);
+        cairo_context.relLineTo(-5, -2); cairo_context.relLineTo(5, 2);
+        cairo_context.stroke();
+    }
+
+    private void drawYAxis(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
+        cairo_context.moveTo(20, w_alloc.height - 10); cairo_context.lineTo(20, 10);
+        cairo_context.relLineTo(2, 5);  cairo_context.relLineTo(-2, -5);
+        cairo_context.relLineTo(-2, 5); cairo_context.relLineTo(2, -5);
+        cairo_context.stroke();
     }
 
     private ubyte min_x_width;

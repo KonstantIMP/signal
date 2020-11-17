@@ -64,7 +64,6 @@ class VideoPulsePlot : Overlay {
     }
 
     public void drawRequest() @trusted {
-        plot_area.setSizeRequest(0, 0);
         plot_area.queueDraw();
     }
 
@@ -82,22 +81,11 @@ class VideoPulsePlot : Overlay {
     }
 
     protected bool onDraw(Scoped!Context _context, Widget _widget) {
-        _widget.setSizeRequest(0, 0);
+        GtkAllocation _w_alloc; ulong _actual_size;
 
-        GtkAllocation _w_alloc;
-        _widget.getAllocation(_w_alloc);
+        sizeAllocate(_widget, _w_alloc, _actual_size);
 
-        ulong actual_size = max_x_width;
-
-        if(bit_sequence.length != 0) {
-            actual_size = (_w_alloc.width - 65) / bit_sequence.length;
-
-            if(actual_size > max_x_width) actual_size = max_x_width;
-            else if(actual_size < min_x_width) actual_size = min_x_width;
-
-            _widget.setSizeRequest(cast(int)(actual_size * bit_sequence.length + 65), _w_alloc.height);
-        } _widget.getAllocation(_w_alloc);
-
+        
         /// Drawing background color
         _context.setSourceRgba(background_color.r,
                                background_color.g,
@@ -127,21 +115,17 @@ class VideoPulsePlot : Overlay {
         _context.moveTo(16, _w_alloc.height / 2);
         _context.relLineTo(8, 0); _context.stroke();
         ///Drawing X value
-        _context.moveTo(20 + actual_size, _w_alloc.height - 16);
+        _context.moveTo(20 + _actual_size, _w_alloc.height - 16);
         _context.relLineTo(0, -8);
         if(bit_sequence.length != 0) {
             for(size_t i = 0; i < bit_sequence.length - 1; i++) {
-                _context.relMoveTo(actual_size, 8);
+                _context.relMoveTo(_actual_size, 8);
                 _context.relLineTo(0, -8);
             }
         } _context.stroke();
 
         /// Making inscriptions
         cairo_text_extents_t extents;
-        /// Plot name
-        /*_context.setFontSize(12); _context.textExtents("График видеоимпульса", &extents);
-        _context.moveTo(_w_alloc.width - 5 - extents.width, 12);
-        _context.showText("График видеоимпульса");*/
         /// X axis name
         _context.setFontSize(10);
         _context.moveTo(_w_alloc.width - 35, _w_alloc.height - 5);
@@ -155,13 +139,13 @@ class VideoPulsePlot : Overlay {
         _context.showText("1");
         /// X values
         _context.textExtents(to!string(time_discrete), &extents);
-        _context.moveTo(20 + actual_size - extents.width / 2, _w_alloc.height - 5);
+        _context.moveTo(20 + _actual_size - extents.width / 2, _w_alloc.height - 5);
         _context.showText(to!string(time_discrete));
         if(bit_sequence.length != 0) {
             for(size_t i = 0; i < bit_sequence.length - 1; i++) {
                 double act_dis = time_discrete * (i + 2);
                 _context.textExtents(to!string(act_dis), &extents);
-                _context.moveTo(20 + (actual_size * (i + 2)) - extents.width / 2, _w_alloc.height - 5);
+                _context.moveTo(20 + (_actual_size * (i + 2)) - extents.width / 2, _w_alloc.height - 5);
                 _context.showText(to!string(act_dis));
             }
         }
@@ -176,13 +160,13 @@ class VideoPulsePlot : Overlay {
             if(bit_sequence[0] == '1') _context.moveTo(20, _w_alloc.height / 2);
             else _context.moveTo(20, _w_alloc.height - 20);
 
-            _context.relLineTo(actual_size, 0);
+            _context.relLineTo(_actual_size, 0);
 
             for(size_t i = 1; i < bit_sequence.length; i++) {
                 if(bit_sequence[i - 1] != bit_sequence[i]) {
                     _context.relLineTo(0, (_w_alloc.height / 2 - 20) * (bit_sequence[i] == '1' ? -1 : 1));                    
                 }
-                _context.relLineTo(actual_size, 0);
+                _context.relLineTo(_actual_size, 0);
             }
 
             if(bit_sequence[bit_sequence.length - 1] == '1') {
@@ -193,6 +177,19 @@ class VideoPulsePlot : Overlay {
         }
 
         return true;
+    }
+
+    protected void sizeAllocate(ref Widget w, out GtkAllocation w_alloc, out ulong actual_size) @trusted {
+        w.setSizeRequest(0, 0); w.getAllocation(w_alloc); actual_size = max_x_width;
+
+        if(bit_sequence.length != 0) {
+            actual_size = (w_alloc.width - 65) / bit_sequence.length;
+
+            if(actual_size > max_x_width) actual_size = max_x_width;
+            else if(actual_size < min_x_width) actual_size = min_x_width;
+
+            w.setSizeRequest(cast(int)(actual_size * bit_sequence.length + 65), w_alloc.height);
+        } w.getAllocation(w_alloc);
     }
 
     private ubyte min_x_width;

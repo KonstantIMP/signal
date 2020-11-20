@@ -19,17 +19,7 @@ import cairo.Context;
 import std.conv;
 import std.math;
 
-/// @brief      This class describes a rgba color
-struct RgbaColor {
-    /// @brief Amount of red 
-    double r;
-    /// @brief Amount of green
-    double g;
-    /// @brief Amount of blue
-    double b;
-    /// @brief Amount of alpha chanell
-    double a;
-}
+import Color;
 
 enum modType {
     frecuency_mod,

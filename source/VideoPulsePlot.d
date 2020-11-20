@@ -16,18 +16,7 @@ import std.string;
 import std.stdio;
 import std.conv;
 
-
-struct RgbaColor {
-
-    double r;
-
-    double g;
-
-    double b;
-
-    double a;
-}
-
+import Color;
 
 class VideoPulsePlot : Overlay {
     private Label plot_name;

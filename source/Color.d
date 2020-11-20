@@ -4,7 +4,6 @@
 ///
 /// @author KonstantIMP
 /// @date   2020
-///
 module Color;
 
 /// @brief  RgbaColor   Struct to describe pixel color using RGBA color space

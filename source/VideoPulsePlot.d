@@ -1,4 +1,9 @@
-
+/// @file   VideoPulsePlot.d
+/// 
+/// @brief  VideoPulsePlot class description
+///
+/// @author KonstantIMP
+/// @date   2020
 module VideoPulsePlot;
 
 import cairo.c.types;
@@ -18,11 +23,27 @@ import std.conv;
 
 import Color;
 
+/// @brief  VideoPulsePlot  Class for drawing video pulse plot
+///
+/// Plot for viewing bit sequence logic voltage level extenting by time
+/// It is a composite widget
+///
+/// GtkOverlay                  # Base Widget
+/// |__ Child
+/// |   |__ GtkScrolledWindow   # For plot scaling
+/// |       |__ GtkDrawingArea  # For plot drawing
+/// |__ Overlay
+///     |__ GtkLabel            # For plot name drawing
 class VideoPulsePlot : Overlay {
+    /// @brief plot_name    Label for plot name drawing
     private Label plot_name;
+    /// @brief plot_area    DrawingArea for plot drawing(Axes and line)
     private DrawingArea plot_area;
+    /// @brief plot_sw      ScrolledWindow for plot scaling
     private ScrolledWindow plot_sw;
 
+    /// @brief  Basic constructor for widget
+    /// Init child widgets, build ui and connect signals
     public this() @trusted { super();
         plot_name = new Label("");
         plot_area = new DrawingArea();
@@ -32,6 +53,7 @@ class VideoPulsePlot : Overlay {
         plot_area.addOnDraw(&onDraw);
     }
 
+    /// @brief resetPlot    Set plot attributes at default values
     public void resetPlot() @trusted {
         min_x_width = 30; max_x_width = 50;
         bit_sequence = ""; time_discrete = 0.01;
@@ -41,25 +63,42 @@ class VideoPulsePlot : Overlay {
         plot_name.setMarkup("<span size='small' foreground='#000000ff' background='#ffffffff'>График видеоимпульса</span>");
     }
 
+    /// @brief drawRequest  Request plot area redraw at GTK
     public void drawRequest() @trusted {
+        /// Set plot area size as zeroes for smart plot scale
         plot_area.setSizeRequest(0, 0);
         plot_area.queueDraw();
     }
 
+    /// @brief createUI Setting correct ui struct
     private void createUI() @trusted {
+        /// Adding plot_sw to Overlay(child)
         add(cast(Widget)(plot_sw));
+        /// Adding plot_area to ScrolledWindow(child)
         plot_sw.add(cast(Widget)(plot_area)); 
         
+        /// Plot name uses markup for work with text and background colors
         plot_name.setUseMarkup(true);
         plot_name.setMarkup("<span size='small' foreground='#000000' background='#ffffff'>График видеоимпульса</span>");
 
+        /// Setting plot_name as OverlayWidget
         addOverlay(cast(Widget)(plot_name));
+        /// Setting plot_name position
         plot_name.setProperty("margin", 5);
         plot_name.setProperty("halign", GtkAlign.END);
         plot_name.setProperty("valign", GtkAlign.START); 
     }
 
-    protected bool onDraw(Scoped!Context _context, Widget _widget) {
+    /// @brief onDraw   Plot drawing slot
+    /// This slot is called every time plot redraw
+    ///
+    /// @param[in]  _context    Cairo context for actually draw
+    /// @param[in]  _widget     Widget that contains cairo surface for drawing
+    ///
+    /// @return     bool        True if drawing was succesfull
+    protected bool onDraw(Scoped!Context _context, Widget _widget) @trusted {
+        /// _w_alloc is struct with _widget size
+        /// _actial_size is distance between unit lines
         GtkAllocation _w_alloc; ulong _actual_size;
 
         sizeAllocate(_widget, _w_alloc, _actual_size);
@@ -75,6 +114,12 @@ class VideoPulsePlot : Overlay {
         return true;
     }
 
+    /// @brief sizeAllocate A function that calculates the size of the plot
+    ///                             based on the number of bits in the sequence
+    ///
+    /// @param[in]  w           Widget to be resized
+    /// @param[out] w_alloc     Calculated widget size
+    /// @param[out] actual_size Calculated distance between unit lines
     protected void sizeAllocate(ref Widget w, out GtkAllocation w_alloc, out ulong actual_size) @trusted {
         w.setSizeRequest(0, 0); w.getAllocation(w_alloc); actual_size = max_x_width;
 
@@ -88,7 +133,10 @@ class VideoPulsePlot : Overlay {
         } w.getAllocation(w_alloc);
     }
 
-    protected void drawBackground(ref Scoped!Context cairo_context) {
+    /// @brief drawBackground   Draw plot background
+    ///
+    /// @param[in] cairo_context    Cairo context for drawing
+    protected void drawBackground(ref Scoped!Context cairo_context) @trusted {
         cairo_context.setSourceRgba(background_color.r,
                                     background_color.g,
                                     background_color.b,
@@ -96,7 +144,11 @@ class VideoPulsePlot : Overlay {
         cairo_context.paint();
     }
 
-    protected void drawAxes(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
+    /// @brief drawAxes Draw plot axes
+    ///
+    /// @param[in] cairo_context   Cairo context for drawing
+    /// @param[in] w_alloc          Plot area size
+    protected void drawAxes(ref Scoped!Context cairo_context, GtkAllocation w_alloc) @trusted {
         cairo_context.setLineWidth(2);
         cairo_context.setSourceRgba(axes_color.r,
                                     axes_color.g,
@@ -107,7 +159,11 @@ class VideoPulsePlot : Overlay {
         drawYAxis(cairo_context, w_alloc);
     }
 
-    protected void drawXAxis(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
+    /// @brief drawXAxis Draw X plot axis
+    ///
+    /// @param[in] cairo_context   Cairo context for drawing
+    /// @param[in] w_alloc          Plot area size
+    protected void drawXAxis(ref Scoped!Context cairo_context, GtkAllocation w_alloc) @trusted {
         cairo_context.moveTo(10, w_alloc.height - 20);
         cairo_context.relLineTo(w_alloc.width - 20, 0);
         cairo_context.relLineTo(-5, 2);  cairo_context.relLineTo(5, -2);
@@ -115,19 +171,33 @@ class VideoPulsePlot : Overlay {
         cairo_context.stroke();
     }
 
-    protected void drawYAxis(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
+    /// @brief drawYAxis Draw Y plot axis
+    ///
+    /// @param[in] cairo_context   Cairo context for drawing
+    /// @param[in] w_alloc          Plot area size
+    protected void drawYAxis(ref Scoped!Context cairo_context, GtkAllocation w_alloc) @trusted {
         cairo_context.moveTo(20, w_alloc.height - 10); cairo_context.lineTo(20, 10);
         cairo_context.relLineTo(2, 5);  cairo_context.relLineTo(-2, -5);
         cairo_context.relLineTo(-2, 5); cairo_context.relLineTo(2, -5);
         cairo_context.stroke();
     }
 
-    protected void makeAxesMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) {
+    /// @brief makeAxesMarkup Draw plot axes markup
+    ///
+    /// @param[in] cairo_context   Cairo context for drawing
+    /// @param[in] w_alloc          Plot area size
+    /// @param[in] actual_size      Distance between unit lines
+    protected void makeAxesMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
         makeXAxisMarkup(cairo_context, w_alloc, actual_size);
         makeYAxisMarkup(cairo_context, w_alloc);
     }
 
-    protected void makeXAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) {
+    /// @brief makeXAxisMarkup Draw X plot axis markup
+    ///
+    /// @param[in] cairo_context   Cairo context for drawing
+    /// @param[in] w_alloc          Plot area size
+    /// @param[in] actual_size      Distance between unit lines
+    protected void makeXAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
         cairo_context.moveTo(20 + actual_size, w_alloc.height - 16);
         cairo_context.relLineTo(0, -8);
         if(bit_sequence.length != 0) {
@@ -138,36 +208,63 @@ class VideoPulsePlot : Overlay {
         } cairo_context.stroke();
     }
 
-    protected void makeYAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
+    /// @brief makeYAxisMarkup Draw Y plot axis markup
+    ///
+    /// @param[in] cairo_context   Cairo context for drawing
+    /// @param[in] w_alloc          Plot area size
+    protected void makeYAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc) @trusted {
         cairo_context.moveTo(16, w_alloc.height / 2);
         cairo_context.relLineTo(8, 0); cairo_context.stroke();
     }
 
-    protected void makeInscriptions(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) {
+    /// @brief makeInscriptions Draw plot inscriprion
+    ///
+    /// @param[in] cairo_context   Cairo context for drawing
+    /// @param[in] w_alloc          Plot area size
+    /// @param[in] actual_size      Distance between unit lines
+    protected void makeInscriptions(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
         textYAxisName(cairo_context, w_alloc);
         textYAxisMarkup(cairo_context, w_alloc);
         textXAxisName(cairo_context, w_alloc, actual_size);
         textXAxisMarkup(cairo_context, w_alloc, actual_size);
     }
 
-    protected void textYAxisName(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
+    /// @brief textYAxisName Draw Y plot axis name
+    ///
+    /// @param[in] cairo_context   Cairo context for drawing
+    /// @param[in] w_alloc          Plot area size
+    protected void textYAxisName(ref Scoped!Context cairo_context, GtkAllocation w_alloc) @trusted {
         cairo_context.setFontSize(10);
         cairo_context.moveTo(5, 10); cairo_context.showText("А");
         cairo_context.moveTo(3, 20); cairo_context.showText("(В)");
     }
 
-    protected void textYAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc) {
+    /// @brief makeYAxisMarkup Draw Y plot axis markup
+    ///
+    /// @param[in] cairo_context   Cairo context for drawing
+    /// @param[in] w_alloc          Plot area size
+    protected void textYAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc) @trusted {
         cairo_context.moveTo(5, w_alloc.height / 2 + 3);
         cairo_context.showText("1");
     }
 
-    protected void textXAxisName(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) {
+    /// @brief textXAxisName Draw X plot axis name
+    ///
+    /// @param[in] cairo_context   Cairo context for drawing
+    /// @param[in] w_alloc          Plot area size
+    /// @param[in] actual_size      Distance between unit lines
+    protected void textXAxisName(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
         cairo_context.setFontSize(10);
         cairo_context.moveTo(w_alloc.width - 35, w_alloc.height - 5);
         cairo_context.showText("t(сек.)");
     }
 
-    protected void textXAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) {
+    /// @brief makeXAxisMarkup Draw X plot axis markup
+    ///
+    /// @param[in] cairo_context   Cairo context for drawing
+    /// @param[in] w_alloc          Plot area size
+    /// @param[in] actual_size      Distance between unit lines
+    protected void textXAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
         cairo_text_extents_t text_extent;
 
         cairo_context.textExtents(to!string(time_discrete), &text_extent);
@@ -184,7 +281,12 @@ class VideoPulsePlot : Overlay {
         }
     }
 
-    protected void drawPlotLine(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) {
+    /// @brief drawPlotLine Draw plot line
+    ///
+    /// @param[in] cairo_context   Cairo context for drawing
+    /// @param[in] w_alloc          Plot area size
+    /// @param[in] actual_size      Distance between unit lines
+    protected void drawPlotLine(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
         cairo_context.setSourceRgba(line_color.r,
                                     line_color.g,
                                     line_color.b,
@@ -210,29 +312,47 @@ class VideoPulsePlot : Overlay {
         cairo_context.stroke();
     }
 
+    /// @brief Minimum distance between unit lines
     private ubyte min_x_width;
-    @property ubyte minXWidth() { return min_x_width; }
-    @property ubyte minXWidth(ubyte min_x) { return min_x_width = min_x; }
+    /// @brief minXWidth    Getter for min_x_width
+    @property ubyte minXWidth() @trusted @nogc { return min_x_width; }
+    /// @brief minXWidth    Setter for min_x_width
+    @property ubyte minXWidth(ubyte min_x) @trusted @nogc { return min_x_width = min_x; }
 
+    /// @brief Maximum distance between unit lines
     private ubyte max_x_width;
-    @property ubyte maxXWidth() { return max_x_width; }
-    @property ubyte maxXWidth(ubyte max_x) { return max_x_width = max_x; }
+    /// @brief maxXWidth    Getter for max_x_width
+    @property ubyte maxXWidth() @trusted @nogc { return max_x_width; }
+    /// @brief maxXWidth    Setter for max_x_width
+    @property ubyte maxXWidth(ubyte max_x) @trusted @nogc { return max_x_width = max_x; }
 
+    /// @brief Bit sequence for displaing
     private string bit_sequence; 
-    @property string bitSequence() { return bit_sequence; }
-    @property string bitSequence(string bits) { return bit_sequence = bits; }
+    /// @brief bitSequence    Getter for bit_sequence
+    @property string bitSequence() @trusted @nogc { return bit_sequence; }
+    /// @brief bitSequence    Setter for bit_sequence
+    @property string bitSequence(string bits) @trusted { return bit_sequence = bits; }
 
+    /// @brief Time discrete for X axis
     private double time_discrete;
-    @property double timeDiscrete() { return time_discrete; }
-    @property double timeDiscrete(double dis) { return time_discrete = dis; } 
+    /// @brief timeDiscrete    Getter for time_discrete
+    @property double timeDiscrete() @trusted @nogc { return time_discrete; }
+    /// @brief timeDiscrete    Setter for time_discrete
+    @property double timeDiscrete(double dis) @trusted @nogc { return time_discrete = dis; } 
 
+    /// @brief Plot line color
     private RgbaColor line_color;
-    @property RgbaColor lineColor() { return line_color; }
-    @property RgbaColor lineColor(RgbaColor line_c) { return line_color = line_c; }
+    /// @brief lineColor    Getter for line_color
+    @property RgbaColor lineColor() @trusted @nogc { return line_color; }
+    /// @brief lineColor    Setter for line_color
+    @property RgbaColor lineColor(RgbaColor line_c) @trusted @nogc { return line_color = line_c; }
 
+    /// @brief Plot axes color
     private RgbaColor axes_color;
-    @property RgbaColor axesColor() { return background_color; }
-    @property RgbaColor axesColor(RgbaColor axes_c) {
+    /// @brief axesColor    Getter for axes_color
+    @property RgbaColor axesColor() @trusted @nogc { return background_color; }
+    /// @brief axesColor    Setter for axes_color
+    @property RgbaColor axesColor(RgbaColor axes_c) @trusted {
         string f_color = rightJustify(to!string(toChars!16(cast(uint)(axes_c.r * 255))), 2, '0') ~
                          rightJustify(to!string(toChars!16(cast(uint)(axes_c.g * 255))), 2, '0') ~
                          rightJustify(to!string(toChars!16(cast(uint)(axes_c.b * 255))), 2, '0') ~
@@ -247,9 +367,12 @@ class VideoPulsePlot : Overlay {
         return axes_color = axes_c;    
     }
 
+    /// @brief Plot background color
     private RgbaColor background_color;
-    @property RgbaColor backgroundColor() { return background_color; }
-    @property RgbaColor backgroundColor(RgbaColor back_c) {
+    /// @brief backgroundColor    Getter for background_color
+    @property RgbaColor backgroundColor() @trusted @nogc { return background_color; }
+    /// @brief backgroundColor    Setter for background_color
+    @property RgbaColor backgroundColor(RgbaColor back_c) @trusted {
         string b_color = rightJustify(to!string(toChars!16(cast(uint)(back_c.r * 255))), 2, '0') ~
                          rightJustify(to!string(toChars!16(cast(uint)(back_c.g * 255))), 2, '0') ~
                          rightJustify(to!string(toChars!16(cast(uint)(back_c.b * 255))), 2, '0') ~

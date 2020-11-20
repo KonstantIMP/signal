@@ -1,11 +1,4 @@
-/**
- * @file VideoPulsePlot.d
- *
- * @brief      This file implements VideoPulsePlot widget.
- *
- * @author     KonstantIMP
- * @date       2020
- */
+
 module VideoPulsePlot;
 
 import cairo.c.types;
@@ -23,23 +16,19 @@ import std.string;
 import std.stdio;
 import std.conv;
 
-/// @brief This class describes a rgba color
+
 struct RgbaColor {
-    /// @brief Amount of red 
+
     double r;
-    /// @brief Amount of green
+
     double g;
-    /// @brief Amount of blue
+
     double b;
-    /// @brief Amount of alpha chanell
+
     double a;
 }
 
-/**
- * @brief This class describes a VideoPulsePlot widget for GtkD.
- * 
- * It has two axes : Time and Voltage level, and draws bit sequence as '1' and '0'V 
- */
+
 class VideoPulsePlot : Overlay {
     private Label plot_name;
     private DrawingArea plot_area;

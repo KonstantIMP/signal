@@ -39,14 +39,14 @@ class SignalWin : Window {
     private void initValues() @trusted {
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(video_plot, 4, 0, 8, 4);
 
-        uiBuilder.getObject("radio_msg").setProperty("margin", 5);
+        /*uiBuilder.getObject("radio_msg").setProperty("margin", 5);
         uiBuilder.getObject("radio_msg").setProperty("halign", GtkAlign.END);
         uiBuilder.getObject("radio_msg").setProperty("valign", GtkAlign.START);
         (cast(Overlay)(uiBuilder.getObject("radio_over"))).addOverlay(
             (cast(Widget)(uiBuilder.getObject("radio_msg")))
         );
         radio_plot = new RadioPulsePlot();
-        (cast(ScrolledWindow)(uiBuilder.getObject("radio_sw"))).add(radio_plot);
+        (cast(ScrolledWindow)(uiBuilder.getObject("radio_sw"))).add(radio_plot);*/
     }
 
     private void connectSignals() @trusted {
@@ -67,11 +67,11 @@ class SignalWin : Window {
 
         video_plot.drawRequest();
 
-        radio_plot.BitSequence(video_plot.bitSequence());
-        radio_plot.TimeDiscrete(video_plot.timeDiscrete());
-        radio_plot.Frequency(to!(uint)((cast(Entry)(uiBuilder.getObject("frequency_en"))).getText()));
+        //radio_plot.BitSequence(video_plot.bitSequence());
+        //radio_plot.TimeDiscrete(video_plot.timeDiscrete());
+        //radio_plot.Frequency(to!(uint)((cast(Entry)(uiBuilder.getObject("frequency_en"))).getText()));
 
-        radio_plot.drawRequest();
+        //radio_plot.drawRequest();
     }
 
     protected slot onDigitEnChanged(EditableIF entry) @trusted {

@@ -11,8 +11,11 @@ module RadioPulsePlot;
 import cairo.c.types;
 import gtk.c.types;
 
+import gtk.ScrolledWindow;
 import gtk.DrawingArea;
+import gtk.Overlay;
 import gtk.Widget;
+import gtk.Label;
 
 import cairo.Context;
 
@@ -26,17 +29,41 @@ enum modType {
     phase_mod
 }
 
-class RadioPulsePlot : DrawingArea {
-    public this() @trusted { super();        
-        reset(); addOnDraw(&onDraw);
+class RadioPulsePlot : Overlay {
+    private Label plot_name;
+    private DrawingArea plor_area;
+    private ScrolledWindow plot_sw;
+
+    public this() @trusted { super();  
+        plot_name = new Label("");
+        plor_area = new DrawingArea();
+        plot_sw = new ScrolledWindow();
+
+        createUI();
+        resetPlot(); //addOnDraw(&onDraw);
     }
 
-    public void reset() @safe {
+    public void resetPlot() @safe {
         f_width = 20; mod_type = modType.frecuency_mod; 
         bit_sequence = ""; frequency = 100; time_discrete = 0.01;
         line_color = RgbaColor (0.0, 1.0, 0.0, 1.0);
         axes_color = RgbaColor (0.0, 0.0, 0.0, 1.0);
         background_color = RgbaColor (1.0, 1.0, 1.0, 1.0);
+    }
+
+    private void createUI() @trusted {
+        add(cast(Widget)(plot_sw));
+
+        plot_sw.add(cast(Widget)(plor_area));
+
+        plot_name.setUseMarkup(true);
+        plot_name.setMarkup("<span size='small' foreground='#000000' background='#ffffff'>График радиосигнала</span>");
+
+        addOverlay(cast(Widget)plot_name);
+
+        plot_name.setProperty("margin", 5);
+        plot_name.setProperty("halign", GtkAlign.END);
+        plot_name.setProperty("valign", GtkAlign.START); 
     }
 
     protected bool onDraw(Scoped!Context _context, Widget _widget) {

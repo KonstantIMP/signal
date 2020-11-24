@@ -73,76 +73,18 @@ class RadioPulsePlot : Overlay {
     }
 
     protected bool onDraw(Scoped!Context _context, Widget _widget) {
-        GtkAllocation _w_alloc; ulong actual_size;
+        GtkAllocation _w_alloc; ulong _actual_size;
 
-        sizeAllocate(_widget, _w_alloc, actual_size);
+        sizeAllocate(_widget, _w_alloc, _actual_size);
 
-             
-
-        /// Drawing background color
         drawBackground(_context);
         drawAxes(_context, _w_alloc);
         
-        makeAxesMarkup(_context, _w_alloc, actual_size);
-        makeInscriptions(_context, _w_alloc, actual_size);
+        makeAxesMarkup(_context, _w_alloc, _actual_size);
+        makeInscriptions(_context, _w_alloc, _actual_size);
 
-        _context.setLineWidth(2);
         if(bit_sequence.length != 0) {
-            _context.setLineWidth(1);
-            _context.moveTo(20, _w_alloc.height / 2);
-            _context.setSourceRgba(line_color.r,
-                                   line_color.g,
-                                   line_color.b,
-                                   line_color.a);
-
-            bool last_state = true;  uint need_draw;
-            need_draw = cast(uint)(round(time_discrete * frequency));
-
-            if(mod_type == modType.phase_mode) {
-                for(size_t i = 0; i < bit_sequence.length; i++) {
-                    double line_height;
-
-                    if(bit_sequence[i] == '1') line_height = cast(double)(_w_alloc.height / 3);
-                    else line_height = cast(double)(_w_alloc.height / 6);
-
-                    line_height = line_height - cast(double)(actual_size) / cast(double)(need_draw) / 4; 
-
-                    for(int j = 0; j < need_draw * 2; j++) {
-                        _context.relLineTo(0, line_height * (last_state == true ? -1 : 1));
-
-                        double cur_x, cur_y; _context.getCurrentPoint(cur_x, cur_y);
-                        if(last_state)
-                            _context.arc(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
-                        else 
-                            _context.arcNegative(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
-
-                        _context.relLineTo(0, line_height * (last_state == true ? 1 : -1));
-                        last_state = !last_state;
-                    }
-                }
-            }
-            else {
-                double line_height = cast(double)(_w_alloc.height / 3);
-                line_height = line_height - cast(double)(actual_size) / cast(double)(need_draw) / 4;
-
-                for(size_t i = 0; i < bit_sequence.length; i++) {
-                    if(i != 0 && bit_sequence[i - 1] != bit_sequence[i]) last_state = !last_state;
-
-                    for(int j = 0; j < need_draw * 2; j++) {
-                        _context.relLineTo(0, line_height * (last_state == true ? -1 : 1));
-
-                        double cur_x, cur_y; _context.getCurrentPoint(cur_x, cur_y);
-                        if(last_state)
-                            _context.arc(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
-                        else 
-                            _context.arcNegative(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
-
-                        _context.relLineTo(0, line_height * (last_state == true ? 1 : -1));
-                        last_state = !last_state;
-                    }
-                }
-
-            } _context.stroke();
+            drawPlotLine(_context, _w_alloc, _actual_size);
         }
 
         return true;
@@ -251,16 +193,16 @@ class RadioPulsePlot : Overlay {
     protected void textXAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
         cairo_context.rotate(3.1415 / 2);
         
-        int reveresed_width = -cast(int)(actual_size - 4);
+        int reveresed_width = -cast(int)(actual_size);
         int reveresed_height = w_alloc.height / 2 + 6;
 
-        cairo_context.moveTo(reveresed_height, reveresed_width - 20);
+        cairo_context.moveTo(reveresed_height, reveresed_width - 16);
         cairo_context.showText(to!string(time_discrete));
 
         double current_discrete = time_discrete * 2;
 
         for(int i = 1; i < bit_sequence.length; i++) {
-            cairo_context.moveTo(reveresed_height, reveresed_width * (i + 1) - 20);
+            cairo_context.moveTo(reveresed_height, reveresed_width * (i + 1) - 16);
             cairo_context.showText(to!string(current_discrete));
             current_discrete = current_discrete + time_discrete;
         }
@@ -269,6 +211,85 @@ class RadioPulsePlot : Overlay {
     }
 
     protected void drawPlotLine(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
+        cairo_context.setLineWidth(1);
+        cairo_context.moveTo(20, w_alloc.height / 2);
+        cairo_context.setSourceRgba(line_color.r,
+                                    line_color.g,
+                                    line_color.b,
+                                    line_color.a);
+        
+        final switch(mod_type) {
+            case ModType.phase_mode : drawPhasePlotLine(cairo_context, w_alloc, actual_size); break;
+            case ModType.amplitude_mode : drawAmplitudePlotLine(cairo_context, w_alloc, actual_size); break;
+            case ModType.frecuency_mode : drawFrequencyPlotLine(cairo_context, w_alloc, actual_size); break;
+        }
+
+        cairo_context.stroke();
+    }
+
+    protected void drawPhasePlotLine(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
+        bool last_state = true; uint need_draw;
+        need_draw = cast(uint)(round(time_discrete * frequency));
+
+        if(need_draw == 0) {
+            time_discrete = time_discrete + time_discrete;
+            drawRequest(); return;
+        }
+        
+        double line_height = cast(double)(w_alloc.height / 3);
+        line_height = line_height - cast(double)(actual_size) / cast(double)(need_draw) / 4;
+
+        for(size_t i = 0; i < bit_sequence.length; i++) {
+            if(i != 0 && bit_sequence[i - 1] != bit_sequence[i]) last_state = !last_state;
+
+            for(int j = 0; j < need_draw * 2; j++) {
+                cairo_context.relLineTo(0, line_height * (last_state == true ? -1 : 1));
+
+                double cur_x, cur_y; cairo_context.getCurrentPoint(cur_x, cur_y);
+                if(last_state)
+                    cairo_context.arc(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
+                else 
+                    cairo_context.arcNegative(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
+
+                cairo_context.relLineTo(0, line_height * (last_state == true ? 1 : -1));
+                last_state = !last_state;
+            }
+        }
+    }
+
+    protected void drawAmplitudePlotLine(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
+        bool last_state = true; uint need_draw;
+        need_draw = cast(uint)(round(time_discrete * frequency));
+
+        if(need_draw == 0) {
+            time_discrete = time_discrete + time_discrete;
+            drawRequest(); return;
+        }
+
+        for(size_t i = 0; i < bit_sequence.length; i++) {
+            double line_height;
+
+            if(bit_sequence[i] == '1') line_height = cast(double)(w_alloc.height / 3);
+            else line_height = cast(double)(w_alloc.height / 6);
+
+            line_height = line_height - cast(double)(actual_size) / cast(double)(need_draw) / 4; 
+
+            for(int j = 0; j < need_draw * 2; j++) {
+                cairo_context.relLineTo(0, line_height * (last_state == true ? -1 : 1));
+
+                double cur_x, cur_y; cairo_context.getCurrentPoint(cur_x, cur_y);
+                if(last_state)
+                    cairo_context.arc(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
+                else 
+                    cairo_context.arcNegative(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
+
+                cairo_context.relLineTo(0, line_height * (last_state == true ? 1 : -1));
+                last_state = !last_state;
+            }
+        }
+    }
+
+    protected void drawFrequencyPlotLine(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
         
     }
 

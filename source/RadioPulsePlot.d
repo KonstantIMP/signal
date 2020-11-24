@@ -25,8 +25,9 @@ import std.math;
 import Color;
 
 enum modType {
-    frecuency_mod,
-    phase_mod
+    frecuency_mode,
+    amplitude_mode,
+    phase_mode
 }
 
 class RadioPulsePlot : Overlay {
@@ -44,7 +45,7 @@ class RadioPulsePlot : Overlay {
     }
 
     public void resetPlot() @safe {
-        f_width = 20; mod_type = modType.frecuency_mod; 
+        f_width = 20; mod_type = modType.frecuency_mode; 
         bit_sequence = ""; frequency = 100; time_discrete = 0.01;
         line_color = RgbaColor (0.0, 1.0, 0.0, 1.0);
         axes_color = RgbaColor (0.0, 0.0, 0.0, 1.0);
@@ -83,43 +84,9 @@ class RadioPulsePlot : Overlay {
         drawAxes(_context, _w_alloc);
         
         makeAxesMarkup(_context, _w_alloc, actual_size);
-        
-        /// Drawing X values
-        
+        makeInscriptions(_context, _w_alloc, actual_size);
 
-        /// Making inscriptions
-        cairo_text_extents_t extents;
-        /// Plot name
-        _context.setFontSize(12); /*_context.textExtents("График радиоканала", &extents);
-        _context.moveTo(_w_alloc.width - 5 - extents.width, 12);
-        _context.showText("График радиоканала");*/
-        /// X axis name
-        _context.setFontSize(10);
-        _context.moveTo(_w_alloc.width - 35, _w_alloc.height / 2 + 12);
-        _context.showText("t(сек.)");
-        /// Y axis name
-        _context.setFontSize(10);
-        _context.moveTo(5, 10); _context.showText("А");
-        ///_context.moveTo(3, 20); _context.showText("(В)");
-        /// Y 1V value
-        _context.moveTo(5, _w_alloc.height / 6 + 3);
-        _context.showText("1");
-        /// Y -1V value
-        _context.moveTo(5, _w_alloc.height / 6 * 5 + 3);
-        _context.showText("-1");
-        /// X values drawing
-        _context.rotate(3.1415 / 2); _context.setFontSize(9);
-        _context.moveTo(_w_alloc.height / 2 + 6, 3 - (20 + actual_size));
-        _context.showText(to!string(time_discrete));
-        if(bit_sequence.length != 0) {
-            for(int i = 0; i < bit_sequence.length - 1; i++) {
-                _context.moveTo(_w_alloc.height / 2 + 6, 3 - 20 - actual_size * (i + 2));
-                _context.showText(to!string(time_discrete * (i + 2)));
-            }
-        }
-
-        /// Drawing plot line
-        _context.rotate(- 3.1415 / 2); _context.setLineWidth(2);
+        _context.setLineWidth(2);
         if(bit_sequence.length != 0) {
             _context.setLineWidth(1);
             _context.moveTo(20, _w_alloc.height / 2);
@@ -131,7 +98,7 @@ class RadioPulsePlot : Overlay {
             bool last_state = true;  uint need_draw;
             need_draw = cast(uint)(round(time_discrete * frequency));
 
-            if(mod_type == modType.phase_mod) {
+            if(mod_type == modType.phase_mode) {
                 for(size_t i = 0; i < bit_sequence.length; i++) {
                     double line_height;
 
@@ -229,7 +196,7 @@ class RadioPulsePlot : Overlay {
     }
 
     protected void makeAxesMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
-        //makeXAxisMarkup(cairo_context, w_alloc, actual_size);
+        makeXAxisMarkup(cairo_context, w_alloc, actual_size);
         makeYAxisMarkup(cairo_context, w_alloc);
     }
 
@@ -251,6 +218,58 @@ class RadioPulsePlot : Overlay {
         /// Drawing -1V value
         cairo_context.moveTo(16, w_alloc.height / 6 * 5);
         cairo_context.relLineTo(8, 0); cairo_context.stroke();
+    }
+
+    protected void makeInscriptions(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
+        textYAxisName(cairo_context, w_alloc);
+        textYAxisMarkup(cairo_context, w_alloc);
+        textXAxisName(cairo_context, w_alloc, actual_size);
+        textXAxisMarkup(cairo_context, w_alloc, actual_size);
+    }
+
+    protected void textYAxisName(ref Scoped!Context cairo_context, GtkAllocation w_alloc) @trusted {
+        cairo_context.setFontSize(10);
+        cairo_context.moveTo(5, 10); 
+        cairo_context.showText("А");
+    }
+
+    protected void textYAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc) @trusted {
+        /// Y 1V value
+        cairo_context.moveTo(5, w_alloc.height / 6 + 3);
+        cairo_context.showText("1");
+        /// Y -1V value
+        cairo_context.moveTo(5, w_alloc.height / 6 * 5 + 3);
+        cairo_context.showText("-1");
+    }
+
+    protected void textXAxisName(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
+        cairo_context.setFontSize(10);
+        cairo_context.moveTo(w_alloc.width - 35, w_alloc.height / 2 + 12);
+        cairo_context.showText("t(сек.)");
+    }
+
+    protected void textXAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
+        cairo_context.rotate(3.1415 / 2);
+        
+        int reveresed_width = -cast(int)(actual_size - 4);
+        int reveresed_height = w_alloc.height / 2 + 6;
+
+        cairo_context.moveTo(reveresed_height, reveresed_width - 20);
+        cairo_context.showText(to!string(time_discrete));
+
+        double current_discrete = time_discrete * 2;
+
+        for(int i = 1; i < bit_sequence.length; i++) {
+            cairo_context.moveTo(reveresed_height, reveresed_width * (i + 1) - 20);
+            cairo_context.showText(to!string(current_discrete));
+            current_discrete = current_discrete + time_discrete;
+        }
+
+        cairo_context.rotate(-(3.1415 / 2));
+    }
+
+    protected void drawPlotLine(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
+        
     }
 
     private ubyte f_width;

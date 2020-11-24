@@ -5,3 +5,12 @@
 # Date Nov 24 2020
 # Author KonstantIMP
 # Status Found
+
+# Bug 0x0002
+# Descriprion
+#     Modulation types was messed up
+#     Instead FrequencyMode I have PhaseMode
+#     Instead PhaseMode I have AmplitudeMode
+# Date 24 Nov 2020
+# Author KonstantIMP
+# Status Found

@@ -51,6 +51,11 @@ class RadioPulsePlot : Overlay {
         background_color = RgbaColor (1.0, 1.0, 1.0, 1.0);
     }
 
+    public void drawRequest() @trusted {
+        plot_area.setSizeRequest(0, 0);
+        plot_area.queueDraw();
+    }
+
     private void createUI() @trusted {
         add(cast(Widget)(plot_sw));
 
@@ -67,63 +72,25 @@ class RadioPulsePlot : Overlay {
     }
 
     protected bool onDraw(Scoped!Context _context, Widget _widget) {
-        _widget.setSizeRequest(0, 0);
+        GtkAllocation _w_alloc; ulong actual_size;
 
-        GtkAllocation _w_alloc;
-        _widget.getAllocation(_w_alloc);
+        sizeAllocate(_widget, _w_alloc, actual_size);
 
-        int actual_size = f_width;
-
-        if(bit_sequence.length != 0) {
-            actual_size = cast(int)(f_width * cast(double)(time_discrete * frequency));
-            if(actual_size < f_width) actual_size = f_width;
-
-            _widget.setSizeRequest(cast(int)(actual_size * bit_sequence.length + 65), _w_alloc.height);
-        } _widget.getAllocation(_w_alloc);        
+             
 
         /// Drawing background color
-        _context.setSourceRgba(background_color.r,
-                               background_color.g,
-                               background_color.b,
-                               background_color.a);
-        _context.paint(); _context.setLineWidth(2);
-
-        /// Drawing axes
-        _context.setSourceRgba(axes_color.r,
-                               axes_color.g,
-                               axes_color.b,
-                               axes_color.a);
-        /// Drawing X axis
-        _context.moveTo(10, _w_alloc.height / 2);
-        _context.relLineTo(_w_alloc.width - 20, 0);
-        _context.relLineTo(-5, 2); _context.relLineTo(5, -2);
-        _context.relLineTo(-5, -2); _context.relLineTo(5, 2);
-        _context.stroke();
-        /// Drawing Y axis
-        _context.moveTo(20, _w_alloc.height - 10); _context.lineTo(20, 10);
-        _context.relLineTo(2, 5); _context.relLineTo(-2, -5);
-        _context.relLineTo(-2, 5); _context.relLineTo(2, -5);
-        _context.stroke();
-        /// Drawing +1V value
-        _context.moveTo(16, _w_alloc.height / 6);
-        _context.relLineTo(8, 0); _context.stroke();
-        /// Drawing -1V value
-        _context.moveTo(16, _w_alloc.height / 6 * 5);
-        _context.relLineTo(8, 0); _context.stroke();
+        drawBackground(_context);
+        drawAxes(_context, _w_alloc);
+        
+        makeAxesMarkup(_context, _w_alloc, actual_size);
+        
         /// Drawing X values
-        _context.moveTo(20 + actual_size, _w_alloc.height / 2 - 4);
-        _context.relLineTo(0, 8);
-        if(bit_sequence.length != 0) {
-            for(int i = 0; i < bit_sequence.length - 1; i++) {
-                _context.relMoveTo(actual_size, -8);
-                _context.relLineTo(0, 8);
-            }
-        }  _context.stroke();
+        
 
         /// Making inscriptions
         cairo_text_extents_t extents;
         /// Plot name
-        /*_context.setFontSize(12); _context.textExtents("График радиоканала", &extents);
+        _context.setFontSize(12); /*_context.textExtents("График радиоканала", &extents);
         _context.moveTo(_w_alloc.width - 5 - extents.width, 12);
         _context.showText("График радиоканала");*/
         /// X axis name
@@ -214,9 +181,76 @@ class RadioPulsePlot : Overlay {
         return true;
     }
 
-    public void drawRequest() @trusted {
-        setSizeRequest(0, 0);
-        queueDraw();
+    protected void sizeAllocate(ref Widget w, out GtkAllocation w_alloc, out ulong actual_size) @trusted {
+        w.setSizeRequest(0, 0);
+        
+        w.getAllocation(w_alloc); actual_size = f_width;
+
+        if(bit_sequence.length != 0) {
+            actual_size = cast(ulong)(f_width * cast(double)(time_discrete * frequency));
+            if(actual_size < f_width) actual_size = f_width;
+
+            w.setSizeRequest(cast(int)(actual_size * bit_sequence.length + 65), w_alloc.height);
+        } w.getAllocation(w_alloc);   
+    }
+
+    protected void drawBackground(ref Scoped!Context cairo_context) @trusted {
+        cairo_context.setSourceRgba(background_color.r,
+                                    background_color.g,
+                                    background_color.b,
+                                    background_color.a);
+        cairo_context.paint();
+    }
+
+    protected void drawAxes(ref Scoped!Context cairo_context, GtkAllocation w_alloc) @trusted {
+        cairo_context.setLineWidth(2);
+        cairo_context.setSourceRgba(axes_color.r,
+                                    axes_color.g,
+                                    axes_color.b,
+                                    axes_color.a);
+
+        drawXAxis(cairo_context, w_alloc);
+        drawYAxis(cairo_context, w_alloc);
+    }
+
+    protected void drawXAxis(ref Scoped!Context cairo_context, GtkAllocation w_alloc) @trusted {
+        cairo_context.moveTo(10, w_alloc.height / 2);
+        cairo_context.relLineTo(w_alloc.width - 20, 0);
+        cairo_context.relLineTo(-5, 2);     cairo_context.relLineTo(5, -2);
+        cairo_context.relLineTo(-5, -2);    cairo_context.relLineTo(5, 2);
+        cairo_context.stroke();
+    }
+
+    protected void drawYAxis(ref Scoped!Context cairo_context, GtkAllocation w_alloc) @trusted {
+        cairo_context.moveTo(20, w_alloc.height - 10);     cairo_context.lineTo(20, 10);
+        cairo_context.relLineTo(2, 5);      cairo_context.relLineTo(-2, -5);
+        cairo_context.relLineTo(-2, 5);     cairo_context.relLineTo(2, -5);
+        cairo_context.stroke();
+    }
+
+    protected void makeAxesMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
+        //makeXAxisMarkup(cairo_context, w_alloc, actual_size);
+        makeYAxisMarkup(cairo_context, w_alloc);
+    }
+
+    protected void makeXAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
+        cairo_context.moveTo(20 + actual_size, w_alloc.height / 2 - 4);
+        cairo_context.relLineTo(0, 8);
+        if(bit_sequence.length != 0) {
+            for(int i = 0; i < bit_sequence.length - 1; i++) {
+                cairo_context.relMoveTo(actual_size, -8);
+                cairo_context.relLineTo(0, 8);
+            }
+        }  cairo_context.stroke();
+    }
+
+    protected void makeYAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation w_alloc) @trusted {
+        /// Drawing +1V value
+        cairo_context.moveTo(16, w_alloc.height / 6);
+        cairo_context.relLineTo(8, 0); cairo_context.stroke();
+        /// Drawing -1V value
+        cairo_context.moveTo(16, w_alloc.height / 6 * 5);
+        cairo_context.relLineTo(8, 0); cairo_context.stroke();
     }
 
     private ubyte f_width;

@@ -60,11 +60,11 @@ class SignalWin : Window {
 
         video_plot.drawRequest();
 
-        //radio_plot.BitSequence(video_plot.bitSequence());
-        //radio_plot.TimeDiscrete(video_plot.timeDiscrete());
-        //radio_plot.Frequency(to!(uint)((cast(Entry)(uiBuilder.getObject("frequency_en"))).getText()));
+        radio_plot.BitSequence(video_plot.bitSequence());
+        radio_plot.TimeDiscrete(video_plot.timeDiscrete());
+        radio_plot.Frequency(to!(uint)((cast(Entry)(uiBuilder.getObject("frequency_en"))).getText()));
 
-        //radio_plot.drawRequest();
+        radio_plot.drawRequest();
     }
 
     protected slot onDigitEnChanged(EditableIF entry) @trusted {

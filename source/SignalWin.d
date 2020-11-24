@@ -102,8 +102,9 @@ class SignalWin : Window {
     }
 
     protected slot onModTypeChanged(ComboBoxText text_cb) {
-        if(text_cb.getActiveId() == "frequency_mod") radio_plot.ModType(modType.frecuency_mode);
-        if(text_cb.getActiveId() == "phase_mod") radio_plot.ModType(modType.phase_mode);
+        if(text_cb.getActiveId() == "frequency_mode") radio_plot.ModType(modType.frecuency_mode);
+        else if(text_cb.getActiveId() == "phase_mode") radio_plot.ModType(modType.phase_mode);
+        else radio_plot.ModType(modType.amplitude_mode);
 
         redrawPlot();
     }

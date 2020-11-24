@@ -45,7 +45,7 @@ class RadioPulsePlot : Overlay {
     }
 
     public void resetPlot() @safe {
-        f_width = 20; mod_type = modType.frecuency_mode; 
+        f_width = 20; mod_type = modType.phase_mode; 
         bit_sequence = ""; frequency = 100; time_discrete = 0.2;
         line_color = RgbaColor (0.0, 1.0, 0.0, 1.0);
         axes_color = RgbaColor (0.0, 0.0, 0.0, 1.0);

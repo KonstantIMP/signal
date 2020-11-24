@@ -117,11 +117,11 @@
           <object class="GtkComboBoxText" id="mod_cb">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="active-id">frequency_mod</property>
+            <property name="active-id">phase_mode</property>
             <items>
               <item id="frequency_mode" translatable="yes">КИМ-ЧМ</item>
               <item id="phase_mode" translatable="yes">КИМ-ФМ</item>
-              <item translatable="yes">АМ</item>
+              <item translatable="yes">КИМ-АМ</item>
             </items>
           </object>
           <packing>

@@ -1,0 +1,7 @@
+# Bug 0x0001
+# Descriprion
+#     X axes markup for VideoPulsePlot is displaing incorrectly
+#     Time values touch each other (need 0.01__0.02; have 0.0(10).02)
+# Date Nov 24 2020
+# Author KonstantIMP
+# Status Found

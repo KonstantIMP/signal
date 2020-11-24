@@ -32,21 +32,14 @@ class SignalWin : Window {
         setBorderWidth(10); uiBuilder = _builder;
 
         video_plot = new VideoPulsePlot();
+        radio_plot = new RadioPulsePlot();
 
         initValues(); connectSignals();
     }
 
     private void initValues() @trusted {
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(video_plot, 4, 0, 8, 4);
-
-        /*uiBuilder.getObject("radio_msg").setProperty("margin", 5);
-        uiBuilder.getObject("radio_msg").setProperty("halign", GtkAlign.END);
-        uiBuilder.getObject("radio_msg").setProperty("valign", GtkAlign.START);
-        (cast(Overlay)(uiBuilder.getObject("radio_over"))).addOverlay(
-            (cast(Widget)(uiBuilder.getObject("radio_msg")))
-        );
-        radio_plot = new RadioPulsePlot();
-        (cast(ScrolledWindow)(uiBuilder.getObject("radio_sw"))).add(radio_plot);*/
+        (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(radio_plot, 4, 4, 8, 4);
     }
 
     private void connectSignals() @trusted {

@@ -31,16 +31,16 @@ enum modType {
 
 class RadioPulsePlot : Overlay {
     private Label plot_name;
-    private DrawingArea plor_area;
+    private DrawingArea plot_area;
     private ScrolledWindow plot_sw;
 
     public this() @trusted { super();  
         plot_name = new Label("");
-        plor_area = new DrawingArea();
+        plot_area = new DrawingArea();
         plot_sw = new ScrolledWindow();
 
         createUI();
-        resetPlot(); //addOnDraw(&onDraw);
+        resetPlot(); plot_area.addOnDraw(&onDraw);
     }
 
     public void resetPlot() @safe {
@@ -54,7 +54,7 @@ class RadioPulsePlot : Overlay {
     private void createUI() @trusted {
         add(cast(Widget)(plot_sw));
 
-        plot_sw.add(cast(Widget)(plor_area));
+        plot_sw.add(cast(Widget)(plot_area));
 
         plot_name.setUseMarkup(true);
         plot_name.setMarkup("<span size='small' foreground='#000000' background='#ffffff'>График радиосигнала</span>");

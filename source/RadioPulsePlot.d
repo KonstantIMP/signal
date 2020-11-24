@@ -46,7 +46,7 @@ class RadioPulsePlot : Overlay {
 
     public void resetPlot() @safe {
         f_width = 20; mod_type = modType.frecuency_mode; 
-        bit_sequence = ""; frequency = 100; time_discrete = 0.01;
+        bit_sequence = ""; frequency = 100; time_discrete = 0.2;
         line_color = RgbaColor (0.0, 1.0, 0.0, 1.0);
         axes_color = RgbaColor (0.0, 0.0, 0.0, 1.0);
         background_color = RgbaColor (1.0, 1.0, 1.0, 1.0);
@@ -290,7 +290,31 @@ class RadioPulsePlot : Overlay {
     }
 
     protected void drawFrequencyPlotLine(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
-        
+        bool last_state = true; uint need_draw;
+        need_draw = cast(uint)(round(time_discrete * frequency));
+
+        if(need_draw < 0) {
+            time_discrete = time_discrete + time_discrete;
+            drawRequest(); return;
+        }
+
+        double line_height = cast(double)(w_alloc.height / 3);
+        line_height = line_height - cast(double)(actual_size) / cast(double)(need_draw) / 4;
+
+        for(int i = 0; i < bit_sequence.length; i++) {
+            for(int j = 0; j < need_draw * (bit_sequence[i] == '1' ? 2 : 1); j++) {
+                cairo_context.relLineTo(0, line_height * (last_state == true ? -1 : 1));
+
+                double cur_x, cur_y; cairo_context.getCurrentPoint(cur_x, cur_y);
+                if(last_state)
+                    cairo_context.arc(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / (bit_sequence[i] == '1' ? 4 : 2), cur_y, (cast(double)(actual_size) / cast(double)(need_draw) / (bit_sequence[i] == '1' ? 4 : 2)), 3.1415, 3.1415 * 2);
+                else 
+                    cairo_context.arcNegative(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / (bit_sequence[i] == '1' ? 4 : 2), cur_y, (cast(double)(actual_size) / cast(double)(need_draw) / (bit_sequence[i] == '1' ? 4 : 2)), 3.1415, 3.1415 * 2);
+
+                cairo_context.relLineTo(0, line_height * (last_state == true ? 1 : -1));
+                last_state = !last_state;
+            }
+        }
     }
 
     private ubyte f_width;

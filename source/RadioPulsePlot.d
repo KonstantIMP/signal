@@ -21,10 +21,12 @@ import cairo.Context;
 
 import std.conv;
 import std.math;
+import std.string;
+import std.conv;
 
 import Color;
 
-enum modType {
+enum ModeType {
     frecuency_mode,
     amplitude_mode,
     phase_mode
@@ -45,8 +47,8 @@ class RadioPulsePlot : Overlay {
     }
 
     public void resetPlot() @safe {
-        f_width = 20; mod_type = modType.phase_mode; 
-        bit_sequence = ""; frequency = 100; time_discrete = 0.2;
+        f_width = 20; mod_type = ModeType.phase_mode; 
+        bit_sequence = ""; freq = 100; time_discrete = 0.2;
         line_color = RgbaColor (0.0, 1.0, 0.0, 1.0);
         axes_color = RgbaColor (0.0, 0.0, 0.0, 1.0);
         background_color = RgbaColor (1.0, 1.0, 1.0, 1.0);
@@ -96,7 +98,7 @@ class RadioPulsePlot : Overlay {
         w.getAllocation(w_alloc); actual_size = f_width;
 
         if(bit_sequence.length != 0) {
-            actual_size = cast(ulong)(f_width * cast(double)(time_discrete * frequency));
+            actual_size = cast(ulong)(f_width * cast(double)(time_discrete * freq));
             if(actual_size < f_width) actual_size = f_width;
 
             w.setSizeRequest(cast(int)(actual_size * bit_sequence.length + 65), w_alloc.height);
@@ -219,15 +221,15 @@ class RadioPulsePlot : Overlay {
                                     line_color.a);
         
         final switch(mod_type) {
-            case ModType.phase_mode : drawPhasePlotLine(cairo_context, w_alloc, actual_size); break;
-            case ModType.amplitude_mode : drawAmplitudePlotLine(cairo_context, w_alloc, actual_size); break;
-            case ModType.frecuency_mode : drawFrequencyPlotLine(cairo_context, w_alloc, actual_size); break;
+            case ModeType.phase_mode : drawPhasePlotLine(cairo_context, w_alloc, actual_size); break;
+            case ModeType.amplitude_mode : drawAmplitudePlotLine(cairo_context, w_alloc, actual_size); break;
+            case ModeType.frecuency_mode : drawFrequencyPlotLine(cairo_context, w_alloc, actual_size); break;
         }
     }
 
     protected void drawPhasePlotLine(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
         bool last_state = true; uint need_draw;
-        need_draw = cast(uint)(round(time_discrete * frequency));
+        need_draw = cast(uint)(round(time_discrete * freq));
 
         if(need_draw == 0) {
             time_discrete = time_discrete + time_discrete;
@@ -263,7 +265,7 @@ class RadioPulsePlot : Overlay {
 
     protected void drawAmplitudePlotLine(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
         bool last_state = true; uint need_draw;
-        need_draw = cast(uint)(round(time_discrete * frequency));
+        need_draw = cast(uint)(round(time_discrete * freq));
 
         if(need_draw == 0) {
             time_discrete = time_discrete + time_discrete;
@@ -301,7 +303,7 @@ class RadioPulsePlot : Overlay {
 
     protected void drawFrequencyPlotLine(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
         bool last_state = true; uint need_draw;
-        need_draw = cast(uint)(round(time_discrete * frequency));
+        need_draw = cast(uint)(round(time_discrete * freq));
 
         if(need_draw < 0) {
             time_discrete = time_discrete + time_discrete;
@@ -334,34 +336,69 @@ class RadioPulsePlot : Overlay {
     }
 
     private ubyte f_width;
-    @property ubyte FWidth() { return f_width; }
-    @property ubyte FWidth(ubyte f) { return f_width = f; }
+    @property ubyte fWidth() { return f_width; }
+    @property ubyte fWidth(ubyte f) { return f_width = f; }
 
     private string bit_sequence; 
-    @property string BitSequence() { return bit_sequence; }
-    @property string BitSequence(string bits) { return bit_sequence = bits; }
+    @property string bitSequence() { return bit_sequence; }
+    @property string bitSequence(string bits) { return bit_sequence = bits; }
 
-    private uint frequency;
-    @property uint Frequency() { return frequency; }
-    @property uint Frequency(uint fr) { return frequency = fr; } 
+    private ulong freq;
+    @property ulong frequency() { return freq; }
+    @property ulong frequency(ulong fr) { return freq = fr; } 
 
     private double time_discrete;
-    @property double TimeDiscrete() { return time_discrete; }
-    @property double TimeDiscrete(double dis) { return time_discrete = dis; } 
+    @property double timeDiscrete() { return time_discrete; }
+    @property double timeDiscrete(double dis) { return time_discrete = dis; } 
 
-    private modType mod_type;
-    @property modType ModType() { return mod_type; }
-    @property modType ModType(modType mt) { return mod_type = mt; }
+    private ModeType mod_type;
+    @property ModeType modeType() { return mod_type; }
+    @property ModeType modeType(ModeType mt) { return mod_type = mt; }
 
+    /// @brief Plot line color
     private RgbaColor line_color;
-    @property RgbaColor LineColor() { return line_color; }
-    @property RgbaColor LineColor(RgbaColor line_c) { return line_color = line_c; }
+    /// @brief lineColor    Getter for line_color
+    @property RgbaColor lineColor() @trusted @nogc { return line_color; }
+    /// @brief lineColor    Setter for line_color
+    @property RgbaColor lineColor(RgbaColor line_c) @trusted @nogc { return line_color = line_c; }
 
+    /// @brief Plot axes color
     private RgbaColor axes_color;
-    @property RgbaColor AxesColor() { return background_color; }
-    @property RgbaColor AxesColor(RgbaColor axes_c) { return axes_color = axes_c; }
+    /// @brief axesColor    Getter for axes_color
+    @property RgbaColor axesColor() @trusted @nogc { return background_color; }
+    /// @brief axesColor    Setter for axes_color
+    @property RgbaColor axesColor(RgbaColor axes_c) @trusted {
+        string f_color = rightJustify(to!string(toChars!16(cast(uint)(axes_c.r * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(axes_c.g * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(axes_c.b * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(axes_c.a * 255))), 2, '0');
+        string b_color = rightJustify(to!string(toChars!16(cast(uint)(background_color.r * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(background_color.g * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(background_color.b * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(background_color.a * 255))), 2, '0');
 
+        plot_name.setMarkup("<span size='small' foreground='#" ~ f_color ~ "' background='#" ~ b_color ~ "'>График видеоимпульса</span>");
+
+        return axes_color = axes_c;    
+    }
+
+    /// @brief Plot background color
     private RgbaColor background_color;
-    @property RgbaColor BackgroundColor() { return background_color; }
-    @property RgbaColor BackgroundColor(RgbaColor back_c) { return background_color = back_c; }
+    /// @brief backgroundColor    Getter for background_color
+    @property RgbaColor backgroundColor() @trusted @nogc { return background_color; }
+    /// @brief backgroundColor    Setter for background_color
+    @property RgbaColor backgroundColor(RgbaColor back_c) @trusted {
+        string b_color = rightJustify(to!string(toChars!16(cast(uint)(back_c.r * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(back_c.g * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(back_c.b * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(back_c.a * 255))), 2, '0');
+        string f_color = rightJustify(to!string(toChars!16(cast(uint)(axes_color.r * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(axes_color.g * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(axes_color.b * 255))), 2, '0') ~
+                         rightJustify(to!string(toChars!16(cast(uint)(axes_color.a * 255))), 2, '0');
+
+        plot_name.setMarkup("<span size='small' foreground='#" ~ f_color ~ "' background='#" ~ b_color ~ "'>График видеоимпульса</span>");
+
+        return background_color = back_c;
+    }
 }

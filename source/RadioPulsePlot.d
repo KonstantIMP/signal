@@ -224,7 +224,7 @@ class RadioPulsePlot : Overlay {
             case ModType.frecuency_mode : drawFrequencyPlotLine(cairo_context, w_alloc, actual_size); break;
         }
 
-        cairo_context.stroke();
+        //cairo_context.stroke();
     }
 
     protected void drawPhasePlotLine(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
@@ -239,21 +239,26 @@ class RadioPulsePlot : Overlay {
         double line_height = cast(double)(w_alloc.height / 3);
         line_height = line_height - cast(double)(actual_size) / cast(double)(need_draw) / 4;
 
+        double del_x_arc = cast(double)(actual_size) / cast(double)(need_draw) / 4;
+
         for(size_t i = 0; i < bit_sequence.length; i++) {
             if(i != 0 && bit_sequence[i - 1] != bit_sequence[i]) last_state = !last_state;
 
             for(int j = 0; j < need_draw * 2; j++) {
-                cairo_context.relLineTo(0, line_height * (last_state == true ? -1 : 1));
+                cairo_context.relLineTo(0, (last_state == true ? -line_height : line_height));
 
                 double cur_x, cur_y; cairo_context.getCurrentPoint(cur_x, cur_y);
                 if(last_state)
-                    cairo_context.arc(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
+                    cairo_context.arc(cur_x + del_x_arc, cur_y, del_x_arc, 3.1415, 3.1415 * 2);
                 else 
-                    cairo_context.arcNegative(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
+                    cairo_context.arcNegative(cur_x + del_x_arc, cur_y, del_x_arc, 3.1415, 3.1415 * 2);
 
-                cairo_context.relLineTo(0, line_height * (last_state == true ? 1 : -1));
+                cairo_context.relLineTo(0, (last_state == true ? line_height : -line_height));
                 last_state = !last_state;
             }
+        
+            cairo_context.stroke();
+            cairo_context.moveTo(20 + actual_size * (i + 1), w_alloc.height / 2);
         }
     }
 
@@ -286,6 +291,9 @@ class RadioPulsePlot : Overlay {
                 cairo_context.relLineTo(0, line_height * (last_state == true ? 1 : -1));
                 last_state = !last_state;
             }
+
+            cairo_context.stroke();
+            cairo_context.moveTo(20 + actual_size * (i + 1), w_alloc.height / 2);
         }
     }
 
@@ -314,6 +322,9 @@ class RadioPulsePlot : Overlay {
                 cairo_context.relLineTo(0, line_height * (last_state == true ? 1 : -1));
                 last_state = !last_state;
             }
+
+            cairo_context.stroke();
+            cairo_context.moveTo(20 + actual_size * (i + 1), w_alloc.height / 2);
         }
     }
 

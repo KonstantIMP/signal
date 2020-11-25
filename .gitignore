@@ -25,3 +25,6 @@ docs/
 
 # Meson builddir
 builddir/
+
+# Glade Autosaves
+*.glade~

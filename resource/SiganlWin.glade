@@ -6,7 +6,7 @@
     <property name="text" translatable="yes">100</property>
   </object>
   <object class="GtkEntryBuffer" id="informativeness_buf">
-    <property name="text" translatable="yes">100</property>
+    <property name="text" translatable="yes">50</property>
   </object>
   <object class="GtkWindow" id="main_window">
     <property name="can-focus">False</property>
@@ -117,10 +117,11 @@
           <object class="GtkComboBoxText" id="mod_cb">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="active-id">frequency_mod</property>
+            <property name="active-id">phase_mode</property>
             <items>
-              <item id="frequency_mod" translatable="yes">КИМ-ЧМ</item>
-              <item id="phase_mod" translatable="yes">КИМ-ФМ</item>
+              <item id="frequency_mode" translatable="yes">КИМ-ЧМ</item>
+              <item id="phase_mode" translatable="yes">КИМ-ФМ</item>
+              <item translatable="yes">КИМ-АМ</item>
             </items>
           </object>
           <packing>
@@ -130,40 +131,198 @@
           </packing>
         </child>
         <child>
-          <object class="GtkOverlay" id="radio_over">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <child>
-              <object class="GtkScrolledWindow" id="radio_sw">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="shadow-type">in</property>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="index">-1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left-attach">4</property>
-            <property name="top-attach">4</property>
-            <property name="width">8</property>
-            <property name="height">4</property>
-          </packing>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
         </child>
         <child>
           <placeholder/>
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkLabel" id="radio_msg">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="label" translatable="yes">&lt;span foreground='#000000' background='#FFFFFF' font_size='small'&gt;График радиоканала&lt;/span&gt;</property>
-    <property name="use-markup">True</property>
   </object>
 </interface>

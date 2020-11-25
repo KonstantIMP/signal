@@ -32,21 +32,14 @@ class SignalWin : Window {
         setBorderWidth(10); uiBuilder = _builder;
 
         video_plot = new VideoPulsePlot();
+        radio_plot = new RadioPulsePlot();
 
         initValues(); connectSignals();
     }
 
     private void initValues() @trusted {
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(video_plot, 4, 0, 8, 4);
-
-        uiBuilder.getObject("radio_msg").setProperty("margin", 5);
-        uiBuilder.getObject("radio_msg").setProperty("halign", GtkAlign.END);
-        uiBuilder.getObject("radio_msg").setProperty("valign", GtkAlign.START);
-        (cast(Overlay)(uiBuilder.getObject("radio_over"))).addOverlay(
-            (cast(Widget)(uiBuilder.getObject("radio_msg")))
-        );
-        radio_plot = new RadioPulsePlot();
-        (cast(ScrolledWindow)(uiBuilder.getObject("radio_sw"))).add(radio_plot);
+        (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(radio_plot, 4, 4, 8, 4);
     }
 
     private void connectSignals() @trusted {
@@ -58,7 +51,7 @@ class SignalWin : Window {
         (cast(EditableIF)(uiBuilder.getObject("bit_sequence_en"))).addOnChanged(&onBinaryEnChanged);
         //(cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).addOnBackspace(&onBackspacePressed);
 
-        (cast(ComboBoxText)(uiBuilder.getObject("mod_cb"))).addOnChanged(&onModTypeChanged);
+        (cast(ComboBoxText)(uiBuilder.getObject("mod_cb"))).addOnChanged(&onModeTypeChanged);
     }
 
     private void redrawPlot() @trusted {
@@ -67,9 +60,9 @@ class SignalWin : Window {
 
         video_plot.drawRequest();
 
-        radio_plot.BitSequence(video_plot.bitSequence());
-        radio_plot.TimeDiscrete(video_plot.timeDiscrete());
-        radio_plot.Frequency(to!(uint)((cast(Entry)(uiBuilder.getObject("frequency_en"))).getText()));
+        radio_plot.bitSequence(video_plot.bitSequence());
+        radio_plot.timeDiscrete(video_plot.timeDiscrete());
+        radio_plot.frequency(to!(ulong)((cast(Entry)(uiBuilder.getObject("frequency_en"))).getText()));
 
         radio_plot.drawRequest();
     }
@@ -108,9 +101,10 @@ class SignalWin : Window {
         redrawPlot();
     }
 
-    protected slot onModTypeChanged(ComboBoxText text_cb) {
-        if(text_cb.getActiveId() == "frequency_mod") radio_plot.ModType(modType.frecuency_mod);
-        if(text_cb.getActiveId() == "phase_mod") radio_plot.ModType(modType.phase_mod);
+    protected slot onModeTypeChanged(ComboBoxText text_cb) {
+        if(text_cb.getActiveId() == "frequency_mode") radio_plot.modeType(ModeType.frecuency_mode);
+        else if(text_cb.getActiveId() == "phase_mode") radio_plot.modeType(ModeType.phase_mode);
+        else radio_plot.modeType(ModeType.amplitude_mode);
 
         redrawPlot();
     }

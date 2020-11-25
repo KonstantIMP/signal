@@ -223,8 +223,6 @@ class RadioPulsePlot : Overlay {
             case ModType.amplitude_mode : drawAmplitudePlotLine(cairo_context, w_alloc, actual_size); break;
             case ModType.frecuency_mode : drawFrequencyPlotLine(cairo_context, w_alloc, actual_size); break;
         }
-
-        //cairo_context.stroke();
     }
 
     protected void drawPhasePlotLine(ref Scoped!Context cairo_context, GtkAllocation w_alloc, ulong actual_size) @trusted {
@@ -240,6 +238,7 @@ class RadioPulsePlot : Overlay {
         line_height = line_height - cast(double)(actual_size) / cast(double)(need_draw) / 4;
 
         double del_x_arc = cast(double)(actual_size) / cast(double)(need_draw) / 4;
+        double cur_x, cur_y;
 
         for(size_t i = 0; i < bit_sequence.length; i++) {
             if(i != 0 && bit_sequence[i - 1] != bit_sequence[i]) last_state = !last_state;
@@ -247,7 +246,7 @@ class RadioPulsePlot : Overlay {
             for(int j = 0; j < need_draw * 2; j++) {
                 cairo_context.relLineTo(0, (last_state == true ? -line_height : line_height));
 
-                double cur_x, cur_y; cairo_context.getCurrentPoint(cur_x, cur_y);
+                cairo_context.getCurrentPoint(cur_x, cur_y);
                 if(last_state)
                     cairo_context.arc(cur_x + del_x_arc, cur_y, del_x_arc, 3.1415, 3.1415 * 2);
                 else 
@@ -271,22 +270,25 @@ class RadioPulsePlot : Overlay {
             drawRequest(); return;
         }
 
+        double del_x_arc = cast(double)(actual_size) / cast(double)(need_draw) / 4;
+        double cur_x, cur_y;
+
         for(size_t i = 0; i < bit_sequence.length; i++) {
             double line_height;
 
             if(bit_sequence[i] == '1') line_height = cast(double)(w_alloc.height / 3);
             else line_height = cast(double)(w_alloc.height / 6);
 
-            line_height = line_height - cast(double)(actual_size) / cast(double)(need_draw) / 4; 
+            line_height = line_height - del_x_arc; 
 
             for(int j = 0; j < need_draw * 2; j++) {
                 cairo_context.relLineTo(0, line_height * (last_state == true ? -1 : 1));
 
-                double cur_x, cur_y; cairo_context.getCurrentPoint(cur_x, cur_y);
+                cairo_context.getCurrentPoint(cur_x, cur_y);
                 if(last_state)
-                    cairo_context.arc(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
+                    cairo_context.arc(cur_x + del_x_arc, cur_y, del_x_arc, 3.1415, 3.1415 * 2);
                 else 
-                    cairo_context.arcNegative(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / 4, cur_y, cast(double)(actual_size) / cast(double)(need_draw) / 4, 3.1415, 3.1415 * 2);
+                    cairo_context.arcNegative(cur_x + del_x_arc, cur_y, del_x_arc, 3.1415, 3.1415 * 2);
 
                 cairo_context.relLineTo(0, line_height * (last_state == true ? 1 : -1));
                 last_state = !last_state;
@@ -309,17 +311,20 @@ class RadioPulsePlot : Overlay {
         double line_height = cast(double)(w_alloc.height / 3);
         line_height = line_height - cast(double)(actual_size) / cast(double)(need_draw) / 4;
 
+        double del_x_cur = cast(double)(actual_size) / cast(double)(need_draw);
+        double cur_x, cur_y; 
+
         for(int i = 0; i < bit_sequence.length; i++) {
             for(int j = 0; j < need_draw * (bit_sequence[i] == '1' ? 2 : 1); j++) {
-                cairo_context.relLineTo(0, line_height * (last_state == true ? -1 : 1));
+                cairo_context.relLineTo(0, (last_state == true ? -line_height : line_height));
 
-                double cur_x, cur_y; cairo_context.getCurrentPoint(cur_x, cur_y);
+                cairo_context.getCurrentPoint(cur_x, cur_y);
                 if(last_state)
-                    cairo_context.arc(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / (bit_sequence[i] == '1' ? 4 : 2), cur_y, (cast(double)(actual_size) / cast(double)(need_draw) / (bit_sequence[i] == '1' ? 4 : 2)), 3.1415, 3.1415 * 2);
+                    cairo_context.arc(cur_x + del_x_cur / (bit_sequence[i] == '1' ? 4 : 2), cur_y, del_x_cur / (bit_sequence[i] == '1' ? 4 : 2), 3.1415, 3.1415 * 2);
                 else 
-                    cairo_context.arcNegative(cur_x + cast(double)(actual_size) / cast(double)(need_draw) / (bit_sequence[i] == '1' ? 4 : 2), cur_y, (cast(double)(actual_size) / cast(double)(need_draw) / (bit_sequence[i] == '1' ? 4 : 2)), 3.1415, 3.1415 * 2);
+                    cairo_context.arcNegative(cur_x + del_x_cur / (bit_sequence[i] == '1' ? 4 : 2), cur_y, del_x_cur / (bit_sequence[i] == '1' ? 4 : 2), 3.1415, 3.1415 * 2);
 
-                cairo_context.relLineTo(0, line_height * (last_state == true ? 1 : -1));
+                cairo_context.relLineTo(0, (last_state == true ? line_height : -line_height));
                 last_state = !last_state;
             }
 

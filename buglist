@@ -4,7 +4,7 @@
 #     Time values touch each other (need 0.01__0.02; have 0.0(10).02)
 # Date Nov 24 2020
 # Author KonstantIMP
-# Status Found
+# Status Fixed
 
 # Bug 0x0002
 # Descriprion

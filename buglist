@@ -14,3 +14,11 @@
 # Date 24 Nov 2020
 # Author KonstantIMP
 # Status Fixed
+
+# Bug 0x0003
+# Descriprion
+#     Incoorect input with backspace key
+#     Bit sequence changing incorrectly by backspace
+# Date 26 Nov 2020
+# Author KonstantIMP
+# Status Found

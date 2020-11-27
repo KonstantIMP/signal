@@ -12,6 +12,7 @@ import gdkpixbuf.Pixbuf;
 
 import gtk.ScrolledWindow;
 import gtk.ComboBoxText;
+import gtk.MessageDialog;
 import gtk.EditableIF;
 import gtk.Overlay;
 import gtk.Widget;
@@ -34,8 +35,15 @@ class SignalWin : Window {
         super(cast(GtkWindow *)gtk_builder_get_object(_builder.getBuilderStruct(), win_name.ptr));
         setBorderWidth(10); uiBuilder = _builder;
 
-        if(os == OS.linux) setIcon(Pixbuf.newFromResource("/kimp/ui/SignalLogo.png", 128, 128, true));
-        else setIcon(new Pixbuf("res\\SignalLogo.png", 128, 128, true));
+        try {
+            if(os == OS.linux) setIcon(Pixbuf.newFromResource("/kimp/ui/SignalLogo.png", 128, 128, true));
+            else setIcon(new Pixbuf("res\\SignalLogo.png", 128, 128, true));
+        }   
+        catch(Exception) {
+            MessageDialog war = new MessageDialog(this, GtkDialogFlags.MODAL | GtkDialogFlags.USE_HEADER_BAR,
+                    GtkMessageType.WARNING, GtkButtonsType.OK, "Hello!\nThere was a problem(not critical) loading resources!\nReinstall program to solve program...", null);
+            war.showAll(); war.run(); war.destroy();
+        }
 
         video_plot = new VideoPulsePlot();
         radio_plot = new RadioPulsePlot();

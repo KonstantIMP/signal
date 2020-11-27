@@ -104,7 +104,7 @@ class RadioPulsePlot : Overlay {
     /// @param[in]  _widget     Widget that contains cairo surface for drawing
     ///
     /// @return     bool        True if drawing was succesfull
-    protected bool onDraw(Scoped!Context _context, Widget _widget) {
+    protected bool onDraw(Scoped!Context _context, Widget _widget) @trusted {
         GtkAllocation _w_alloc; ulong _actual_size;
 
         sizeAllocate(_widget, _w_alloc, _actual_size);

@@ -8,6 +8,8 @@ import RadioPulsePlot;
 import glib.c.types;
 import gtk.c.types;
 
+import gdkpixbuf.Pixbuf;
+
 import gtk.ScrolledWindow;
 import gtk.ComboBoxText;
 import gtk.EditableIF;
@@ -23,6 +25,7 @@ import std.ascii;
 import std.conv;
 
 import std.stdio;
+import std.system;
 
 alias slot = void;
 
@@ -30,6 +33,9 @@ class SignalWin : Window {
     public this(ref Builder _builder, string win_name) @trusted {
         super(cast(GtkWindow *)gtk_builder_get_object(_builder.getBuilderStruct(), win_name.ptr));
         setBorderWidth(10); uiBuilder = _builder;
+
+        if(os == OS.linux) setIcon(Pixbuf.newFromResource("/kimp/ui/SignalLogo.png", 128, 128, true));
+        else setIcon(new Pixbuf("res\\SignalLogo.png", 128, 128, true));
 
         video_plot = new VideoPulsePlot();
         radio_plot = new RadioPulsePlot();
@@ -45,11 +51,11 @@ class SignalWin : Window {
     private void connectSignals() @trusted {
         (cast(EditableIF)(uiBuilder.getObject("informativeness_en"))).addOnChanged(&onDigitEnChanged);
         (cast(EditableIF)(uiBuilder.getObject("frequency_en"))).addOnChanged(&onDigitEnChanged);
-        //(cast(Entry)(uiBuilder.getObject("informativeness_en"))).addOnBackspace(&onBackspacePressed);
-        //(cast(Entry)(uiBuilder.getObject("frequency_en"))).addOnBackspace(&onBackspacePressed);
+        (cast(Entry)(uiBuilder.getObject("informativeness_en"))).addOnBackspace(&onBackspacePressed);
+        (cast(Entry)(uiBuilder.getObject("frequency_en"))).addOnBackspace(&onBackspacePressed);
 
         (cast(EditableIF)(uiBuilder.getObject("bit_sequence_en"))).addOnChanged(&onBinaryEnChanged);
-        //(cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).addOnBackspace(&onBackspacePressed);
+        (cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).addOnBackspace(&onBackspacePressed);
 
         (cast(ComboBoxText)(uiBuilder.getObject("mod_cb"))).addOnChanged(&onModeTypeChanged);
     }
@@ -98,6 +104,7 @@ class SignalWin : Window {
     }
 
     protected slot onBackspacePressed(Entry en) {
+        //writeln("Aaa");
         redrawPlot();
     }
 

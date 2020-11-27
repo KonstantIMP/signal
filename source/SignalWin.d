@@ -51,11 +51,8 @@ class SignalWin : Window {
     private void connectSignals() @trusted {
         (cast(EditableIF)(uiBuilder.getObject("informativeness_en"))).addOnChanged(&onDigitEnChanged);
         (cast(EditableIF)(uiBuilder.getObject("frequency_en"))).addOnChanged(&onDigitEnChanged);
-        (cast(Entry)(uiBuilder.getObject("informativeness_en"))).addOnBackspace(&onBackspacePressed);
-        (cast(Entry)(uiBuilder.getObject("frequency_en"))).addOnBackspace(&onBackspacePressed);
 
         (cast(EditableIF)(uiBuilder.getObject("bit_sequence_en"))).addOnChanged(&onBinaryEnChanged);
-        (cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).addOnBackspace(&onBackspacePressed);
 
         (cast(ComboBoxText)(uiBuilder.getObject("mod_cb"))).addOnChanged(&onModeTypeChanged);
     }
@@ -76,7 +73,9 @@ class SignalWin : Window {
     protected slot onDigitEnChanged(EditableIF entry) @trusted {
         string input_sym = entry.getChars(entry.getPosition(), entry.getPosition() + 1);
         
-        if(input_sym.length == 0) return;
+        if(input_sym.length == 0) {
+            redrawPlot(); return;
+        }
 
         if(!isDigit(input_sym[0])) {
             string correct_out = entry.getChars(0, entry.getPosition()) ~ entry.getChars(entry.getPosition() + 2, -1);
@@ -91,7 +90,9 @@ class SignalWin : Window {
     protected slot onBinaryEnChanged(EditableIF entry) @trusted {
         string input_sym = entry.getChars(entry.getPosition(), entry.getPosition() + 1);
         
-        if(input_sym.length == 0) return;
+        if(input_sym.length == 0) {
+            redrawPlot(); return;
+        }
 
         if(input_sym[0] != '0' && input_sym[0] != '1') {
             string correct_out = entry.getChars(0, entry.getPosition()) ~ entry.getChars(entry.getPosition() + 2, -1);
@@ -100,11 +101,6 @@ class SignalWin : Window {
             entry.insertText(correct_out, cast(int)correct_out.length, zero);
         }
 
-        redrawPlot();
-    }
-
-    protected slot onBackspacePressed(Entry en) {
-        //writeln("Aaa");
         redrawPlot();
     }
 

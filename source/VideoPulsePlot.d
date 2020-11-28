@@ -18,7 +18,6 @@ import gtk.Label;
 import cairo.Context;
 
 import std.string;
-import std.stdio;
 import std.conv;
 
 import Color;
@@ -129,7 +128,7 @@ class VideoPulsePlot : Overlay {
             if(actual_size > max_x_width) actual_size = max_x_width;
             else if(actual_size < min_x_width) actual_size = min_x_width;
 
-            if(to!string(time_discrete).length * 5 + 10 > actual_size) actual_size = to!string(time_discrete).length * 5 + 10;
+            if(to!string(time_discrete).length * 5 + 15 > actual_size) actual_size = to!string(time_discrete).length * 5 + 15;
 
             w.setSizeRequest(cast(int)(actual_size * bit_sequence.length + 65), w_alloc.height);
         } w.getAllocation(w_alloc);

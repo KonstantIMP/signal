@@ -1,6 +1,10 @@
+/// @file   SignalWin.d
+///
+/// @brief  Main app window
+///
+/// @author KonstantIMP
+/// @date   2020
 module SignalWin;
-
-extern (C) GObject * gtk_builder_get_object (GtkBuilder * builder, const char * name);
 
 import VideoPulsePlot;
 import RadioPulsePlot;
@@ -25,14 +29,16 @@ import gtk.Window;
 import std.ascii;
 import std.conv;
 
-import std.stdio;
 import std.system;
 
-alias slot = void;
-
+/// @brief  SignalWin   Main program window
+///
+/// Comtains all UI elements
 class SignalWin : Window {
+    /// @brief  Basic constructor for widget
+    /// Init child widgets, build ui and connect signals
     public this(ref Builder _builder, string win_name) @trusted {
-        super(cast(GtkWindow *)gtk_builder_get_object(_builder.getBuilderStruct(), win_name.ptr));
+        super((cast(Window)_builder.getObject(win_name)).getWindowStruct());
         setBorderWidth(10); uiBuilder = _builder;
 
         try {
@@ -51,11 +57,13 @@ class SignalWin : Window {
         initValues(); connectSignals();
     }
 
+    /// @brief initValues   Put plot widgets to main grid
     private void initValues() @trusted {
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(video_plot, 4, 0, 8, 4);
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(radio_plot, 4, 4, 8, 4);
     }
 
+    /// @brief connectSignals Connect Signals for entries and ComboBox
     private void connectSignals() @trusted {
         (cast(EditableIF)(uiBuilder.getObject("informativeness_en"))).addOnChanged(&onDigitEnChanged);
         (cast(EditableIF)(uiBuilder.getObject("frequency_en"))).addOnChanged(&onDigitEnChanged);
@@ -65,6 +73,7 @@ class SignalWin : Window {
         (cast(ComboBoxText)(uiBuilder.getObject("mod_cb"))).addOnChanged(&onModeTypeChanged);
     }
 
+    /// @brief redrawPlot   Collect data from entries and sent draw requests
     private void redrawPlot() @trusted {
         video_plot.bitSequence((cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).getText());
         video_plot.timeDiscrete(1 / to!double((cast(Entry)(uiBuilder.getObject("informativeness_en"))).getText()));
@@ -78,7 +87,8 @@ class SignalWin : Window {
         radio_plot.drawRequest();
     }
 
-    protected slot onDigitEnChanged(EditableIF entry) @trusted {
+    /// @brief onDigitEnChanged Doesn't allow input non-Digits to informativity and frequency
+    protected void onDigitEnChanged(EditableIF entry) @trusted {
         string input_sym = entry.getChars(entry.getPosition(), entry.getPosition() + 1);
         
         if(input_sym.length == 0) {
@@ -95,7 +105,8 @@ class SignalWin : Window {
         redrawPlot();
     }
 
-    protected slot onBinaryEnChanged(EditableIF entry) @trusted {
+    /// @brief onBinaryEnChanged Doesn't allow input non-1 and no-0 to bit sequence
+    protected void onBinaryEnChanged(EditableIF entry) @trusted {
         string input_sym = entry.getChars(entry.getPosition(), entry.getPosition() + 1);
         
         if(input_sym.length == 0) {
@@ -112,7 +123,8 @@ class SignalWin : Window {
         redrawPlot();
     }
 
-    protected slot onModeTypeChanged(ComboBoxText text_cb) {
+    /// @brief onModeTypeChanged Change RadioPlot modulation type
+    protected void onModeTypeChanged(ComboBoxText text_cb) {
         if(text_cb.getActiveId() == "frequency_mode") radio_plot.modeType(ModeType.frecuency_mode);
         else if(text_cb.getActiveId() == "phase_mode") radio_plot.modeType(ModeType.phase_mode);
         else radio_plot.modeType(ModeType.amplitude_mode);
@@ -120,8 +132,11 @@ class SignalWin : Window {
         redrawPlot();
     }
 
+    /// @brief Video plot widget
     private VideoPulsePlot video_plot;
+    /// @brief Radio plot widget
     private RadioPulsePlot radio_plot;
 
+    /// @brief UI builder object
     private Builder uiBuilder;
 }

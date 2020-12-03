@@ -44,7 +44,7 @@ class SignalWin : Window {
 
         try {
             if(os == OS.linux) setIcon(Pixbuf.newFromResource("/kimp/ui/SignalLogo.png", 128, 128, true));
-            else setIcon(new Pixbuf("res\\SignalLogo.png", 128, 128, true));
+            else setIcon(new Pixbuf("..\\res\\SignalLogo.png", 128, 128, true));
         }   
         catch(Exception) {
             MessageDialog war = new MessageDialog(this, GtkDialogFlags.MODAL | GtkDialogFlags.USE_HEADER_BAR,

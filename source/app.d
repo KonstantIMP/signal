@@ -33,7 +33,7 @@ int main(string [] args) {
         Builder signal_builder = new Builder();        
         try {
             if(os == OS.linux) signal_builder.addFromResource("/kimp/ui/SignalWin.glade");
-            else signal_builder.addFromFile("res\\SignalWin.glade");
+            else signal_builder.addFromFile("..\\res\\SignalWin.glade");
         }
         catch(Exception) {
             /// Error while loading .glade file

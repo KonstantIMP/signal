@@ -2,6 +2,7 @@
 /// 
 /// @brief  RgbaColor struct description
 ///
+/// @license LGPLv3 (see LICENSE file)
 /// @author KonstantIMP
 /// @date   2020
 module Color;

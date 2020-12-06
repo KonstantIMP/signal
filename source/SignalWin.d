@@ -76,6 +76,9 @@ class SignalWin : Window {
 
     /// @brief redrawPlot   Collect data from entries and sent draw requests
     private void redrawPlot() @trusted {
+        if((cast(Entry)(uiBuilder.getObject("informativeness_en"))).getText() == "" ||
+           (cast(Entry)(uiBuilder.getObject("frequency_en"))).getText() == "") return;
+
         video_plot.bitSequence((cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).getText());
         video_plot.timeDiscrete(1 / to!double((cast(Entry)(uiBuilder.getObject("informativeness_en"))).getText()));
 

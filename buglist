@@ -22,3 +22,11 @@
 # Date 26 Nov 2020
 # Author KonstantIMP
 # Status Fixed
+
+# Bug 0x0004
+# Descriprion
+#     Programe crashes when you erase all
+#     data from informativity or frequency entry
+# Date 6 dec 2020
+# Author KonstantIMP
+# Status Found

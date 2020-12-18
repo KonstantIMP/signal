@@ -63,7 +63,8 @@ class SignalWin : Window {
         video_plot = new VideoPulsePlot();
         radio_plot = new RadioPulsePlot();
 
-        writeln(rgbaToHexStr(video_plot.axesColor()));
+        //writeln(rgbaToHexStr(video_plot.axesColor()));
+
 
         initValues(); connectSignals();
     }
@@ -73,7 +74,7 @@ class SignalWin : Window {
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(video_plot, 4, 0, 8, 4);
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(radio_plot, 4, 4, 8, 4);
 
-        a = new PlotViewer("test");
+        a = new PlotViewer("test"); a.plotName("hiihi");
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(a, 4, 8, 8, 4);
     }
 

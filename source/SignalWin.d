@@ -10,6 +10,8 @@ module SignalWin;
 import VideoPulsePlot;
 import RadioPulsePlot;
 
+import Noise;
+
 import glib.c.types;
 import gtk.c.types;
 
@@ -56,6 +58,8 @@ class SignalWin : Window {
         radio_plot = new RadioPulsePlot();
 
         initValues(); connectSignals();
+
+        AWGNoise n = new AWGNoise(); n.generateAWGNoise(10);
     }
 
     /// @brief initValues   Put plot widgets to main grid

@@ -5,6 +5,7 @@ gnome = import('gnome')
 
 signal_sorce = [
     'source/app.d',
+    'source/Noise.d',
     'source/SignalWin.d',
     'source/VideoPulsePlot.d',
     'source/RadioPulsePlot.d'

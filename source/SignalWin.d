@@ -10,6 +10,8 @@ module SignalWin;
 import VideoPulsePlot;
 import RadioPulsePlot;
 
+import PlotViewer;
+
 import Noise;
 
 import glib.c.types;
@@ -34,6 +36,10 @@ import std.conv;
 
 import std.system;
 
+import std.stdio;
+
+import Color;
+
 /// @brief  SignalWin   Main program window
 ///
 /// Comtains all UI elements
@@ -57,15 +63,18 @@ class SignalWin : Window {
         video_plot = new VideoPulsePlot();
         radio_plot = new RadioPulsePlot();
 
-        initValues(); connectSignals();
+        writeln(rgbaToHexStr(video_plot.axesColor()));
 
-        AWGNoise n = new AWGNoise(); n.generateAWGNoise(10);
+        initValues(); connectSignals();
     }
 
     /// @brief initValues   Put plot widgets to main grid
     private void initValues() @trusted {
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(video_plot, 4, 0, 8, 4);
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(radio_plot, 4, 4, 8, 4);
+
+        a = new PlotViewer("test");
+        (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(a, 4, 8, 8, 4);
     }
 
     /// @brief connectSignals Connect Signals for entries and ComboBox
@@ -147,4 +156,6 @@ class SignalWin : Window {
 
     /// @brief UI builder object
     private Builder uiBuilder;
+
+    private PlotViewer a;
 }

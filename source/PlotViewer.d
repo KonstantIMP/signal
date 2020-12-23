@@ -71,6 +71,15 @@ class PlotViewer : Overlay {
         ubyte x_unit_size = countXUnitSize(w_alloc);
         ubyte y_unit_size = countYUnitSize(w_alloc);
 
+        debug {
+            import std.stdio;
+
+            writeln("Plot name : ", plot_name, " ____________________");
+            writefln("Widget size : %dpx * %dpx", w_alloc.width, w_alloc.height);
+            writefln("X unit size : %dpx", x_unit_size);
+            writefln("Y unit size : %dpx", y_unit_size);
+        }
+
         drawBackground(context, w_alloc, x_unit_size, y_unit_size);
         drawAxes(context, w_alloc, x_unit_size, y_unit_size);
 

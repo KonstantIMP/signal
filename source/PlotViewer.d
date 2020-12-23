@@ -75,6 +75,9 @@ class PlotViewer : Overlay {
         drawAxes(context, w_alloc, x_unit_size, y_unit_size);
 
         makeAxesMarkup(context, w_alloc, x_unit_size, y_unit_size);
+        makeInscriptions(context, w_alloc, x_unit_size, y_unit_size);
+
+        drawPlotLine(context, w_alloc, x_unit_size, y_unit_size);
 
         return true;
     }
@@ -136,15 +139,25 @@ class PlotViewer : Overlay {
         makeYAxisMarkup(cairo_context, widget_alloc, xunits, yunits);
     }
 
-    protected void makeXAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation, ubyte, ubyte) {}
+    protected void makeXAxisMarkup(ref Scoped!Context, GtkAllocation, ubyte, ubyte) {}
 
-    protected void makeYAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation, ubyte, ubyte) {}
+    protected void makeYAxisMarkup(ref Scoped!Context, GtkAllocation, ubyte, ubyte) {}
 
     protected void makeInscriptions(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ubyte xunits, ubyte yunits) {
+        textXAxisName(cairo_context, widget_alloc, xunits, yunits);
+        textYAxisName(cairo_context, widget_alloc, xunits, yunits);
 
+        textXAxisUnits(cairo_context, widget_alloc, xunits, yunits);
+        textYAxisUnits(cairo_context, widget_alloc, xunits, yunits);
     }
 
+    protected void textXAxisName(ref Scoped!Context, GtkAllocation, ubyte, ubyte) {}
+    protected void textYAxisName(ref Scoped!Context, GtkAllocation, ubyte, ubyte) {}
 
+    protected void textXAxisUnits(ref Scoped!Context, GtkAllocation, ubyte, ubyte) {}
+    protected void textYAxisUnits(ref Scoped!Context, GtkAllocation, ubyte, ubyte) {}
+
+    protected void drawPlotLine(ref Scoped!Context, GtkAllocation, ubyte, ubyte) {}
 
     protected Label plot_name_msg;
     protected DrawingArea plot_area;

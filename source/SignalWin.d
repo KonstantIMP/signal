@@ -93,6 +93,9 @@ class SignalWin : Window {
         if((cast(Entry)(uiBuilder.getObject("informativeness_en"))).getText() == "" ||
            (cast(Entry)(uiBuilder.getObject("frequency_en"))).getText() == "") return;
 
+        if((cast(Entry)(uiBuilder.getObject("informativeness_en"))).getText()[0] == '0' ||
+           (cast(Entry)(uiBuilder.getObject("frequency_en"))).getText()[0] == '0') return;
+
         video_plot.bitSequence((cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).getText());
         video_plot.timeDiscrete(1 / to!double((cast(Entry)(uiBuilder.getObject("informativeness_en"))).getText()));
 

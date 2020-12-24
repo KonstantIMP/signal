@@ -68,17 +68,8 @@ class PlotViewer : Overlay {
     /// @return     bool        True if drawing was succesfull
     protected bool onDraw(Scoped!Context context, Widget widget) {
         GtkAllocation w_alloc = allocatePlotArea(widget);
-        ubyte x_unit_size = countXUnitSize(w_alloc);
-        ubyte y_unit_size = countYUnitSize(w_alloc);
-
-        debug {
-            import std.stdio;
-
-            writeln("Plot name : ", plot_name, " ____________________");
-            writefln("Widget size : %dpx * %dpx", w_alloc.width, w_alloc.height);
-            writefln("X unit size : %dpx", x_unit_size);
-            writefln("Y unit size : %dpx", y_unit_size);
-        }
+        ulong x_unit_size = countXUnitSize(w_alloc);
+        ulong y_unit_size = countYUnitSize(w_alloc);
 
         drawBackground(context, w_alloc, x_unit_size, y_unit_size);
         drawAxes(context, w_alloc, x_unit_size, y_unit_size);
@@ -96,15 +87,15 @@ class PlotViewer : Overlay {
         return result;
     }
 
-    protected ubyte countXUnitSize(GtkAllocation) @safe {
-        return cast(ubyte)(0);
+    protected ulong countXUnitSize(GtkAllocation) @safe {
+        return cast(ulong)(0);
     }
 
-    protected ubyte countYUnitSize(GtkAllocation) @safe {
-        return cast(ubyte)(0);
+    protected ulong countYUnitSize(GtkAllocation) @safe {
+        return cast(ulong)(0);
     }
 
-    protected void drawBackground(ref Scoped!Context cairo_context, GtkAllocation, ubyte, ubyte) {
+    protected void drawBackground(ref Scoped!Context cairo_context, GtkAllocation, ulong, ulong) {
         cairo_context.setSourceRgba(background_color.r,
                                     background_color.g,
                                     background_color.b,
@@ -112,7 +103,7 @@ class PlotViewer : Overlay {
         cairo_context.paint();
     }
 
-    protected void drawAxes(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ubyte xunits, ubyte yunits) {
+    protected void drawAxes(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong xunits, ulong yunits) {
         cairo_context.setLineWidth(2);
         cairo_context.setSourceRgba(axes_color.r,
                                     axes_color.g,
@@ -123,7 +114,7 @@ class PlotViewer : Overlay {
         drawYAxis(cairo_context, widget_alloc, xunits, yunits);
     }
 
-    protected void drawXAxis(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ubyte, ubyte) {
+    protected void drawXAxis(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong, ulong) {
         cairo_context.moveTo(10, widget_alloc.height - 20);
         cairo_context.relLineTo(widget_alloc.width - 20, 0);
         cairo_context.relLineTo(-5, +2);
@@ -133,7 +124,7 @@ class PlotViewer : Overlay {
         cairo_context.stroke();
     }
 
-    protected void drawYAxis(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ubyte, ubyte) {
+    protected void drawYAxis(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong, ulong) {
         cairo_context.moveTo(20, widget_alloc.height - 10);
         cairo_context.lineTo(+20, +10);
         cairo_context.relLineTo(+2, +5);
@@ -143,16 +134,16 @@ class PlotViewer : Overlay {
         cairo_context.stroke();
     }
 
-    protected void makeAxesMarkup(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ubyte xunits, ubyte yunits) {
+    protected void makeAxesMarkup(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong xunits, ulong yunits) {
         makeXAxisMarkup(cairo_context, widget_alloc, xunits, yunits);
         makeYAxisMarkup(cairo_context, widget_alloc, xunits, yunits);
     }
 
-    protected void makeXAxisMarkup(ref Scoped!Context, GtkAllocation, ubyte, ubyte) {}
+    protected void makeXAxisMarkup(ref Scoped!Context, GtkAllocation, ulong, ulong) {}
 
-    protected void makeYAxisMarkup(ref Scoped!Context, GtkAllocation, ubyte, ubyte) {}
+    protected void makeYAxisMarkup(ref Scoped!Context, GtkAllocation, ulong, ulong) {}
 
-    protected void makeInscriptions(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ubyte xunits, ubyte yunits) {
+    protected void makeInscriptions(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong xunits, ulong yunits) {
         textXAxisName(cairo_context, widget_alloc, xunits, yunits);
         textYAxisName(cairo_context, widget_alloc, xunits, yunits);
 
@@ -160,13 +151,13 @@ class PlotViewer : Overlay {
         textYAxisUnits(cairo_context, widget_alloc, xunits, yunits);
     }
 
-    protected void textXAxisName(ref Scoped!Context, GtkAllocation, ubyte, ubyte) {}
-    protected void textYAxisName(ref Scoped!Context, GtkAllocation, ubyte, ubyte) {}
+    protected void textXAxisName(ref Scoped!Context, GtkAllocation, ulong, ulong) {}
+    protected void textYAxisName(ref Scoped!Context, GtkAllocation, ulong, ulong) {}
 
-    protected void textXAxisUnits(ref Scoped!Context, GtkAllocation, ubyte, ubyte) {}
-    protected void textYAxisUnits(ref Scoped!Context, GtkAllocation, ubyte, ubyte) {}
+    protected void textXAxisUnits(ref Scoped!Context, GtkAllocation, ulong, ulong) {}
+    protected void textYAxisUnits(ref Scoped!Context, GtkAllocation, ulong, ulong) {}
 
-    protected void drawPlotLine(ref Scoped!Context, GtkAllocation, ubyte, ubyte) {}
+    protected void drawPlotLine(ref Scoped!Context, GtkAllocation, ulong, ulong) {}
 
     protected Label plot_name_msg;
     protected DrawingArea plot_area;

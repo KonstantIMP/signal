@@ -49,7 +49,7 @@ class VideoPulsePlot : PlotViewer {
         return w_alloc;
     }
 
-    override protected ubyte countXUnitSize(GtkAllocation widget_alloc) @safe {
+    override protected ulong countXUnitSize(GtkAllocation widget_alloc) @safe {
         ulong x_size = max_x_width;
 
         if(bit_sequence.length != 0) {
@@ -61,14 +61,14 @@ class VideoPulsePlot : PlotViewer {
             if(to!string(time_discrete).length * 5 + 15 > x_size) x_size = to!string(time_discrete).length * 5 + 15;
         }
 
-        return cast(ubyte)(x_size);
+        return cast(ulong)(x_size);
     }
 
-    override protected ubyte countYUnitSize(GtkAllocation widget_alloc) @safe {
-        return cast(ubyte)((widget_alloc.height / 2) - 20);
+    override protected ulong countYUnitSize(GtkAllocation widget_alloc) @safe {
+        return cast(ulong)((widget_alloc.height / 2) - 20);
     }
 
-    override protected void makeXAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ubyte x_size, ubyte) {
+    override protected void makeXAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong x_size, ulong) {
         cairo_context.moveTo(20 + x_size, widget_alloc.height - 16);
         cairo_context.relLineTo(0, -8);
 
@@ -82,24 +82,24 @@ class VideoPulsePlot : PlotViewer {
         cairo_context.stroke();
     }
 
-    override protected void makeYAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ubyte, ubyte y_size) {
+    override protected void makeYAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong, ulong y_size) {
         cairo_context.moveTo(16, y_size + 20);
         cairo_context.relLineTo(8, 0);
         cairo_context.stroke();
     }
 
-    override protected void textXAxisName(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ubyte, ubyte) {
+    override protected void textXAxisName(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong, ulong) {
         cairo_context.setFontSize(10);
         cairo_context.moveTo(widget_alloc.width - 30, widget_alloc.height - 5);
         cairo_context.showText("t(сек.)");
     }
 
-    override protected void textYAxisName(ref Scoped!Context cairo_context, GtkAllocation, ubyte, ubyte) {
+    override protected void textYAxisName(ref Scoped!Context cairo_context, GtkAllocation, ulong, ulong) {
         cairo_context.setFontSize(10);
         cairo_context.moveTo(6, 15); cairo_context.showText("А");
     }
 
-    override protected void textXAxisUnits(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ubyte x_size, ubyte) {
+    override protected void textXAxisUnits(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong x_size, ulong) {
         cairo_text_extents_t text_extent;
 
         cairo_context.textExtents(to!string(time_discrete), &text_extent);
@@ -118,12 +118,12 @@ class VideoPulsePlot : PlotViewer {
         }
     }
 
-    override protected void textYAxisUnits(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ubyte, ubyte y_size) {
+    override protected void textYAxisUnits(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong, ulong y_size) {
         cairo_context.moveTo(5, y_size + 23);
         cairo_context.showText("1");
     }
 
-    override protected void drawPlotLine(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ubyte x_size, ubyte y_size) {
+    override protected void drawPlotLine(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong x_size, ulong y_size) {
         cairo_context.setSourceRgba(line_color.r,
                                     line_color.g,
                                     line_color.b,
@@ -138,7 +138,7 @@ class VideoPulsePlot : PlotViewer {
 
         for(size_t i = 1; i < bit_sequence.length; i++) {
             if(bit_sequence[i - 1] != bit_sequence[i]) {
-                cairo_context.relLineTo(0, (bit_sequence[i] == '1' ? -(cast(byte)(y_size)) : y_size));                    
+                cairo_context.relLineTo(0, (bit_sequence[i] == '1' ? -(cast(double)y_size) : y_size));                    
             }
             cairo_context.relLineTo(x_size, 0);
         }

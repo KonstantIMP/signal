@@ -23,6 +23,7 @@ import std.math;
 import std.string;
 import std.conv;
 
+import PlotViewer;
 import Color;
 
 /// @brief Enumeration of supported modulation modes for plot drawing
@@ -43,8 +44,103 @@ enum ModeType {
 /// |       |__ GtkDrawingArea  # For plot drawing
 /// |__ Overlay
 ///     |__ GtkLabel            # For plot name drawing
-class RadioPulsePlot : Overlay {
-    /// @brief plot_name    Label for plot name drawing
+class RadioPulsePlot : PlotViewer {
+    public this() { super("График радиосигнала");
+        f_width = 20; mod_type = ModeType.phase_mode; 
+        bit_sequence = ""; freq = 100; time_discrete = 0.02;
+    }
+
+    override protected GtkAllocation allocatePlotArea(ref Widget w) {
+        GtkAllocation w_alloc; ulong act_size = f_width;
+
+        w.setSizeRequest(0, 0); w.getAllocation(w_alloc);
+
+        if(bit_sequence.length != 0) {
+            act_size = cast(ulong)(f_width * cast(double)(time_discrete * freq));
+            if(act_size < f_width) act_size = f_width;
+
+            w.setSizeRequest(cast(int)(act_size * bit_sequence.length + 65), w_alloc.height);
+        } w.getAllocation(w_alloc);
+
+        return w_alloc;
+    }
+
+    override protected ulong countXUnitSize(GtkAllocation) @safe {
+        ulong x_size = f_width;
+
+        if(bit_sequence.length != 0) {
+            x_size = cast(ulong)(f_width * cast(double)(time_discrete * freq));
+            if(x_size < f_width) x_size = f_width;
+        }
+
+        return cast(ulong)(x_size);
+    }
+
+    override protected ulong countYUnitSize(GtkAllocation widget_alloc) @safe {
+        return cast(ulong)(widget_alloc.height / 3);
+    }
+
+    override protected void drawXAxis(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong, ulong) {
+        cairo_context.moveTo(10, widget_alloc.height / 2);
+        cairo_context.relLineTo(widget_alloc.width - 20, 0);
+        cairo_context.relLineTo(-5, +2);
+        cairo_context.relLineTo(+5, -2);
+        cairo_context.relLineTo(-5, -2);
+        cairo_context.relLineTo(+5, +2);
+        cairo_context.stroke();
+    }
+
+    override protected void makeXAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong x_size, ulong) {
+        cairo_context.moveTo(20 + x_size, widget_alloc.height / 2 - 4);
+        cairo_context.relLineTo(0, 8);
+        if(bit_sequence.length != 0) {
+            for(int i = 0; i < bit_sequence.length - 1; i++) {
+                cairo_context.relMoveTo(x_size, -8);
+                cairo_context.relLineTo(0, 8);
+            }
+        }
+        cairo_context.stroke();
+    }
+
+    override protected void makeYAxisMarkup(ref Scoped!Context cairo_context, GtkAllocation, ulong, ulong y_size) {
+        cairo_context.moveTo(16, y_size / 2);
+        cairo_context.relLineTo(8, 0); cairo_context.stroke();
+        cairo_context.moveTo(16, y_size / 2 * 5);
+        cairo_context.relLineTo(8, 0); cairo_context.stroke();
+    }
+
+    override protected void textXAxisName(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong, ulong y_size) {
+        cairo_context.setFontSize(10);
+        cairo_context.moveTo(widget_alloc.width - 30, y_size / 2 * 3 + 15);
+        cairo_context.showText("t(сек.)");
+    }
+
+    override protected void textYAxisName(ref Scoped!Context cairo_context, GtkAllocation, ulong, ulong) {
+        cairo_context.setFontSize(10);
+        cairo_context.moveTo(6, 15); cairo_context.showText("А");
+    }
+
+    override protected void textXAxisUnits(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong x_size, ulong) {
+        cairo_context.rotate(3.1415 / 2);
+        
+        int reveresed_width = -cast(int)(x_size);
+        int reveresed_height = widget_alloc.height / 2 + 6;
+
+        cairo_context.moveTo(reveresed_height, reveresed_width - 16);
+        cairo_context.showText(to!string(time_discrete));
+
+        double current_discrete = time_discrete * 2;
+
+        for(int i = 1; i < bit_sequence.length; i++) {
+            cairo_context.moveTo(reveresed_height, reveresed_width * (i + 1) - 16);
+            cairo_context.showText(to!string(current_discrete));
+            current_discrete = current_discrete + time_discrete;
+        }
+
+        cairo_context.rotate(-(3.1415 / 2));
+    }
+
+    /*/// @brief plot_name    Label for plot name drawing
     private Label plot_name;
     /// @brief plot_area    DrawingArea for plot drawing(Axes and line)
     private DrawingArea plot_area;
@@ -64,8 +160,7 @@ class RadioPulsePlot : Overlay {
 
     /// @brief resetPlot    Set plot attributes at default values
     public void resetPlot() @safe {
-        f_width = 20; mod_type = ModeType.phase_mode; 
-        bit_sequence = ""; freq = 100; time_discrete = 0.2;
+        
         line_color = RgbaColor (0.0, 1.0, 0.0, 1.0);
         axes_color = RgbaColor (0.0, 0.0, 0.0, 1.0);
         background_color = RgbaColor (1.0, 1.0, 1.0, 1.0);
@@ -445,7 +540,7 @@ class RadioPulsePlot : Overlay {
             cairo_context.stroke();
             cairo_context.moveTo(20 + actual_size * (i + 1), w_alloc.height / 2);
         }
-    }
+    }*/
 
     /// @brief  Distance between units
     private ubyte f_width;
@@ -481,51 +576,4 @@ class RadioPulsePlot : Overlay {
     @property ModeType modeType() { return mod_type; }
     /// @brief  modeType    Setter for mod_type
     @property ModeType modeType(ModeType mt) { return mod_type = mt; }
-
-    /// @brief Plot line color
-    private RgbaColor line_color;
-    /// @brief lineColor    Getter for line_color
-    @property RgbaColor lineColor() @trusted @nogc { return line_color; }
-    /// @brief lineColor    Setter for line_color
-    @property RgbaColor lineColor(RgbaColor line_c) @trusted @nogc { return line_color = line_c; }
-
-    /// @brief Plot axes color
-    private RgbaColor axes_color;
-    /// @brief axesColor    Getter for axes_color
-    @property RgbaColor axesColor() @trusted @nogc { return background_color; }
-    /// @brief axesColor    Setter for axes_color
-    @property RgbaColor axesColor(RgbaColor axes_c) @trusted {
-        string f_color = rightJustify(to!string(toChars!16(cast(uint)(axes_c.r * 255))), 2, '0') ~
-                         rightJustify(to!string(toChars!16(cast(uint)(axes_c.g * 255))), 2, '0') ~
-                         rightJustify(to!string(toChars!16(cast(uint)(axes_c.b * 255))), 2, '0') ~
-                         rightJustify(to!string(toChars!16(cast(uint)(axes_c.a * 255))), 2, '0');
-        string b_color = rightJustify(to!string(toChars!16(cast(uint)(background_color.r * 255))), 2, '0') ~
-                         rightJustify(to!string(toChars!16(cast(uint)(background_color.g * 255))), 2, '0') ~
-                         rightJustify(to!string(toChars!16(cast(uint)(background_color.b * 255))), 2, '0') ~
-                         rightJustify(to!string(toChars!16(cast(uint)(background_color.a * 255))), 2, '0');
-
-        plot_name.setMarkup("<span size='small' foreground='#" ~ f_color ~ "' background='#" ~ b_color ~ "'>График видеоимпульса</span>");
-
-        return axes_color = axes_c;    
-    }
-
-    /// @brief Plot background color
-    private RgbaColor background_color;
-    /// @brief backgroundColor    Getter for background_color
-    @property RgbaColor backgroundColor() @trusted @nogc { return background_color; }
-    /// @brief backgroundColor    Setter for background_color
-    @property RgbaColor backgroundColor(RgbaColor back_c) @trusted {
-        string b_color = rightJustify(to!string(toChars!16(cast(uint)(back_c.r * 255))), 2, '0') ~
-                         rightJustify(to!string(toChars!16(cast(uint)(back_c.g * 255))), 2, '0') ~
-                         rightJustify(to!string(toChars!16(cast(uint)(back_c.b * 255))), 2, '0') ~
-                         rightJustify(to!string(toChars!16(cast(uint)(back_c.a * 255))), 2, '0');
-        string f_color = rightJustify(to!string(toChars!16(cast(uint)(axes_color.r * 255))), 2, '0') ~
-                         rightJustify(to!string(toChars!16(cast(uint)(axes_color.g * 255))), 2, '0') ~
-                         rightJustify(to!string(toChars!16(cast(uint)(axes_color.b * 255))), 2, '0') ~
-                         rightJustify(to!string(toChars!16(cast(uint)(axes_color.a * 255))), 2, '0');
-
-        plot_name.setMarkup("<span size='small' foreground='#" ~ f_color ~ "' background='#" ~ b_color ~ "'>График видеоимпульса</span>");
-
-        return background_color = back_c;
-    }
 }

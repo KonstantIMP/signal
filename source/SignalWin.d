@@ -9,6 +9,7 @@ module SignalWin;
 
 import VideoPulsePlot;
 import RadioPulsePlot;
+import NoiseRadioPulsePlot;
 
 import PlotViewer;
 
@@ -63,6 +64,8 @@ class SignalWin : Window {
         video_plot = new VideoPulsePlot();
         radio_plot = new RadioPulsePlot();
 
+        noise_plot = new NoiseRadioPulsePlot();
+
         //writeln(rgbaToHexStr(video_plot.axesColor()));
 
 
@@ -73,9 +76,7 @@ class SignalWin : Window {
     private void initValues() @trusted {
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(video_plot, 4, 0, 8, 4);
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(radio_plot, 4, 4, 8, 4);
-
-        a = new PlotViewer("test"); a.plotName("hiihi");
-        (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(a, 4, 8, 8, 4);
+        (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(noise_plot, 4, 8, 8, 4);
     }
 
     /// @brief connectSignals Connect Signals for entries and ComboBox
@@ -106,6 +107,12 @@ class SignalWin : Window {
         radio_plot.frequency(to!(ulong)((cast(Entry)(uiBuilder.getObject("frequency_en"))).getText()));
 
         radio_plot.drawRequest();
+
+        noise_plot.bitSequence(radio_plot.bitSequence());
+        noise_plot.timeDiscrete(radio_plot.timeDiscrete());
+        noise_plot.frequency(radio_plot.frequency());
+
+        noise_plot.drawRequest();
     }
 
     /// @brief onDigitEnChanged Doesn't allow input non-Digits to informativity and frequency
@@ -150,6 +157,8 @@ class SignalWin : Window {
         else if(text_cb.getActiveId() == "phase_mode") radio_plot.modeType(ModeType.phase_mode);
         else radio_plot.modeType(ModeType.amplitude_mode);
 
+        noise_plot.modeType(radio_plot.modeType());
+
         redrawPlot();
     }
 
@@ -158,8 +167,8 @@ class SignalWin : Window {
     /// @brief Radio plot widget
     private RadioPulsePlot radio_plot;
 
+    private NoiseRadioPulsePlot noise_plot;
+
     /// @brief UI builder object
     private Builder uiBuilder;
-
-    private PlotViewer a;
 }

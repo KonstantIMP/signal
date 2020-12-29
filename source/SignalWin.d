@@ -67,7 +67,8 @@ class SignalWin : Window {
         noise_plot = new NoiseRadioPulsePlot();
 
         //writeln(rgbaToHexStr(video_plot.axesColor()));
-
+        awg_noise = new AWGNoise(50);
+        awg_noise = new AWGNoise(50);
 
         initValues(); connectSignals();
     }
@@ -171,4 +172,6 @@ class SignalWin : Window {
 
     /// @brief UI builder object
     private Builder uiBuilder;
+
+    private AWGNoise awg_noise;
 }

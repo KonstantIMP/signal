@@ -1,19 +1,20 @@
 module Noise;
 
-import std.container;
+import std.exception;
 import std.random;
 import std.stdio;
 
 class AWGNoise {
-    public SList!byte * noise_list;
+    private byte [] noise_list;
 
-    public this(uint length = 0, uint max_value = 10) {
-        noise_list = new SList!byte;
+    public this(uint length = 0, byte max_value = 10) {
+        noise_list = null;
         if(length != 0) generateAWGNoise(length, max_value);        
     }
 
-    public void generateAWGNoise(uint length, uint max_value = 10) {
-        clearNoise();
+    public void generateAWGNoise(uint length, byte max_value = 10) {
+        if(noise_list !is null) noise_list.destroy();
+        noise_list = new byte[length];
 
         byte value = 0, pos = 0;
 
@@ -21,20 +22,27 @@ class AWGNoise {
             value = cast(byte)uniform!"[]"(0, max_value);
             pos = cast(byte)uniform!"[]"(0, max_value) % 2;
 
-            if(pos) noise_list.insert(value);
-            else noise_list.insert(cast(byte)(value * -1));
+            if(pos) noise_list[i] = value;
+            else noise_list[i] = cast(byte)(value * -1);
         }
 
         debug {
-            noise_list.opSlice().writeln();
+            noise_list.writeln();
         }
     }
 
-    public void clearNoise() {
-        noise_list.clear();
+    public size_t getNoiseLength() {
+        if(noise_list is null) return 0;
+        return noise_list.length;
+    }
+
+    public byte at(size_t index) {
+        enforce(index < noise_list.length, "BadAlloc : noise array is smaller than index value");
+        enforce(noise_list !is null, "Error : Noise hasn`t been generated yet");
+        return noise_list[index];
     }
 
     public ~this() {
-        clearNoise(); noise_list.destroy();
+        if(noise_list !is null) noise_list.destroy();
     }
 }

@@ -77,6 +77,9 @@ class SignalWin : Window {
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(video_plot, 4, 0, 8, 4);
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(radio_plot, 4, 4, 8, 4);
         (cast(Grid)(uiBuilder.getObject("main_grid"))).attach(noise_plot, 4, 8, 8, 4);
+
+        noise_plot.plotNoise(awg_noise);
+        noise_plot.noisePower(10);
     }
 
     /// @brief connectSignals Connect Signals for entries and ComboBox
@@ -95,10 +98,12 @@ class SignalWin : Window {
     /// @brief redrawPlot   Collect data from entries and sent draw requests
     private void redrawPlot() @trusted {
         if((cast(Entry)(uiBuilder.getObject("informativeness_en"))).getText() == "" ||
-           (cast(Entry)(uiBuilder.getObject("frequency_en"))).getText() == "") return;
+           (cast(Entry)(uiBuilder.getObject("frequency_en"))).getText() == "" ||
+           (cast(Entry)(uiBuilder.getObject("noise_pow_en"))).getText() == "") return;
 
         if((cast(Entry)(uiBuilder.getObject("informativeness_en"))).getText()[0] == '0' ||
-           (cast(Entry)(uiBuilder.getObject("frequency_en"))).getText()[0] == '0') return;
+           (cast(Entry)(uiBuilder.getObject("frequency_en"))).getText()[0] == '0' ||
+           (cast(Entry)(uiBuilder.getObject("noise_pow_en"))).getText()[0] == '0') return;
 
         video_plot.bitSequence((cast(Entry)(uiBuilder.getObject("bit_sequence_en"))).getText());
         video_plot.timeDiscrete(1 / to!double((cast(Entry)(uiBuilder.getObject("informativeness_en"))).getText()));
@@ -114,6 +119,8 @@ class SignalWin : Window {
         noise_plot.bitSequence(radio_plot.bitSequence());
         noise_plot.timeDiscrete(radio_plot.timeDiscrete());
         noise_plot.frequency(radio_plot.frequency());
+
+        noise_plot.noisePower(to!(ulong)((cast(Entry)(uiBuilder.getObject("noise_pow_en"))).getText()));
 
         noise_plot.drawRequest();
     }
@@ -167,6 +174,9 @@ class SignalWin : Window {
 
     protected void onRefreshBtnClicked(Button btn) {
         awg_noise.generateAWGNoise(50);
+
+        noise_plot.plotNoise(awg_noise);
+        noise_plot.drawRequest();
     }
 
     /// @brief Video plot widget

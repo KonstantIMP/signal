@@ -25,6 +25,7 @@ import gtk.ComboBoxText;
 import gtk.MessageDialog;
 import gtk.EditableIF;
 import gtk.Overlay;
+import gtk.Button;
 import gtk.Widget;
 import gtk.Entry;
 import gtk.Grid;
@@ -66,8 +67,6 @@ class SignalWin : Window {
 
         noise_plot = new NoiseRadioPulsePlot();
 
-        //writeln(rgbaToHexStr(video_plot.axesColor()));
-        awg_noise = new AWGNoise(50);
         awg_noise = new AWGNoise(50);
 
         initValues(); connectSignals();
@@ -83,11 +82,14 @@ class SignalWin : Window {
     /// @brief connectSignals Connect Signals for entries and ComboBox
     private void connectSignals() @trusted {
         (cast(EditableIF)(uiBuilder.getObject("informativeness_en"))).addOnChanged(&onDigitEnChanged);
+        (cast(EditableIF)(uiBuilder.getObject("noise_pow_en"))).addOnChanged(&onDigitEnChanged);
         (cast(EditableIF)(uiBuilder.getObject("frequency_en"))).addOnChanged(&onDigitEnChanged);
 
         (cast(EditableIF)(uiBuilder.getObject("bit_sequence_en"))).addOnChanged(&onBinaryEnChanged);
 
         (cast(ComboBoxText)(uiBuilder.getObject("mod_cb"))).addOnChanged(&onModeTypeChanged);
+
+        (cast(Button)(uiBuilder.getObject("refresh_btn"))).addOnClicked(&onRefreshBtnClicked);
     }
 
     /// @brief redrawPlot   Collect data from entries and sent draw requests
@@ -161,6 +163,10 @@ class SignalWin : Window {
         noise_plot.modeType(radio_plot.modeType());
 
         redrawPlot();
+    }
+
+    protected void onRefreshBtnClicked(Button btn) {
+        awg_noise.generateAWGNoise(50);
     }
 
     /// @brief Video plot widget

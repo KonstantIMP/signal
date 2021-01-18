@@ -262,35 +262,35 @@ class RadioPulsePlot : PlotViewer {
     }
 
     /// @brief  Distance between units
-    private ubyte f_width;
+    protected ubyte f_width;
     /// @brief  fWidth  Getter for f_width
     @property ubyte fWidth() { return f_width; }
     /// @brief  fWidth  Setter for f_width
     @property ubyte fWidth(ubyte f) { return f_width = f; }
 
     /// @brief Bit sequence for displaing
-    private string bit_sequence; 
+    protected string bit_sequence; 
     /// @brief bitSequence    Getter for bit_sequence
     @property string bitSequence() { return bit_sequence; }
     /// @brief bitSequence    Setter for bit_sequence
     @property string bitSequence(string bits) { return bit_sequence = bits; }
 
     /// @brief Frequency for considering plot
-    private ulong freq;
+    protected ulong freq;
     /// @brief  frequency   Getter for freq
     @property ulong frequency() { return freq; }
     /// @brief  frequency   Setter for freq
     @property ulong frequency(ulong fr) { return freq = fr; } 
 
     /// @brief Time discrete for X axis
-    private double time_discrete;
+    protected double time_discrete;
     /// @brief timeDiscrete    Getter for time_discrete
     @property double timeDiscrete() { return time_discrete; }
     /// @brief timeDiscrete    Setter for time_discrete
     @property double timeDiscrete(double dis) { return time_discrete = dis; } 
 
     /// @brief  Modulation type for plot drawing
-    private ModeType mod_type;
+    protected ModeType mod_type;
     /// @brief  modeType    Getter for mod_type
     @property ModeType modeType() { return mod_type; }
     /// @brief  modeType    Setter for mod_type

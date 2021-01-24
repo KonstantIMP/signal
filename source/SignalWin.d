@@ -67,7 +67,7 @@ class SignalWin : Window {
 
         noise_plot = new NoiseRadioPulsePlot();
 
-        awg_noise = new AWGNoise(50);
+        awg_noise = new AWGNoise(50, 10);
 
         initValues(); connectSignals();
     }

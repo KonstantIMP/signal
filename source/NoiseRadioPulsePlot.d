@@ -16,7 +16,7 @@ class NoiseRadioPulsePlot : RadioPulsePlot {
 
     override protected void drawPhasePlotLine(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong x_size, ulong y_size) {
         //AAAAA I don't know how
-        uint need_draw = cast(uint)(round(time_discrete * freq));
+        /*uint need_draw = cast(uint)(round(time_discrete * freq));
         bool last_state = true;
 
         if(need_draw == 0) {
@@ -97,7 +97,7 @@ class NoiseRadioPulsePlot : RadioPulsePlot {
             }
         }
 
-        cairo_context.stroke();
+        cairo_context.stroke();*/
     }
 
     private ulong noise_power;

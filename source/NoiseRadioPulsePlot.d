@@ -12,11 +12,11 @@ import Noise;
 class NoiseRadioPulsePlot : RadioPulsePlot {
     public this() { super();
         plotName("Полученный сигнал");
+        noise_power = 100;
     }
 
     override protected void drawPhasePlotLine(ref Scoped!Context cairo_context, GtkAllocation widget_alloc, ulong x_size, ulong y_size) {
-        //AAAAA I don't know how
-        /*uint need_draw = cast(uint)(round(time_discrete * freq));
+        uint need_draw = cast(uint)(round(time_discrete * freq));
         bool last_state = true;
 
         if(need_draw == 0) {
@@ -27,77 +27,63 @@ class NoiseRadioPulsePlot : RadioPulsePlot {
         double line_height = cast(double)(y_size) - cast(double)(x_size) / cast(double)(need_draw) / 4;
 
         double del_x_arc = cast(double)(x_size) / cast(double)(need_draw) / 4;
-        double cur_x = 0, cur_y = 0;
 
-        ulong counter = 0;
+        ulong counter = 0; double affective_power = cast(double)(noise_power) / 100.0;
 
         for(size_t i = 0; i < bit_sequence.length; i++) {
             if(i != 0 && bit_sequence[i - 1] != bit_sequence[i]) last_state = !last_state;
 
             for(size_t j = 0; j < need_draw * 2; j++) {
-                cairo_context.relLineTo(0.5, (last_state == true ? -line_height : line_height));
-                counter++;
+                cairo_context.relCurveTo(0, cast(double)(plot_noise.at((counter + 1) % plot_noise.getNoiseLength()) * affective_power),
+                                         0, cast(double)(plot_noise.at((counter + 2) % plot_noise.getNoiseLength()) * affective_power),
+                                         0.5, (last_state == true ? -line_height : line_height));
+                counter += 2;
 
-                cairo_context.getCurrentPoint(cur_x, cur_y);
+                if(last_state) drawArc(cairo_context, del_x_arc, counter);       
+                else drawNegativeArc(cairo_context, del_x_arc, counter);
 
-                if(last_state) {
-                    //cairo_context.arc(cur_x + del_x_arc, cur_y, del_x_arc, 3.1415, 3.1415 * 2);
-                    cairo_context.relCurveTo(0, -del_x_arc + plot_noise.at(counter % plot_noise.getNoiseLength()),
-                                             del_x_arc / 2, plot_noise.at(counter % plot_noise.getNoiseLength()), del_x_arc / 2 - 0.25,
-                                             -del_x_arc + plot_noise.at(counter % plot_noise.getNoiseLength()));
+                counter += 8;
 
-                    counter++;
-
-                    cairo_context.relCurveTo(0, -del_x_arc + plot_noise.at(counter % plot_noise.getNoiseLength()),
-                                             del_x_arc / 2, plot_noise.at(counter % plot_noise.getNoiseLength()), del_x_arc / 2 - 0.25,
-                                             -del_x_arc + plot_noise.at(counter % plot_noise.getNoiseLength()));
-
-                    counter++;
-
-                    cairo_context.relCurveTo(0, del_x_arc - plot_noise.at(counter % plot_noise.getNoiseLength()),
-                                             -del_x_arc / 2, -plot_noise.at(counter % plot_noise.getNoiseLength()), del_x_arc / 2 - 0.25,
-                                             +del_x_arc - plot_noise.at(counter % plot_noise.getNoiseLength()));
-
-                    counter++;
-
-                    cairo_context.relCurveTo(0, del_x_arc - plot_noise.at(counter % plot_noise.getNoiseLength()),
-                                             -del_x_arc / 2, -plot_noise.at(counter % plot_noise.getNoiseLength()), del_x_arc / 2 - 0.25,
-                                             +del_x_arc - plot_noise.at(counter % plot_noise.getNoiseLength()));
-
-                    counter++;
-                }                    
-                else {
-                    cairo_context.relCurveTo(0, del_x_arc - plot_noise.at(counter % plot_noise.getNoiseLength()),
-                                             -del_x_arc / 2, -plot_noise.at(counter % plot_noise.getNoiseLength()), del_x_arc / 2 - 0.25,
-                                             +del_x_arc - plot_noise.at(counter % plot_noise.getNoiseLength()));
-
-                    counter++;
-
-                    cairo_context.relCurveTo(0, del_x_arc - plot_noise.at(counter % plot_noise.getNoiseLength()),
-                                             -del_x_arc / 2, -plot_noise.at(counter % plot_noise.getNoiseLength()), del_x_arc / 2 - 0.25,
-                                             +del_x_arc - plot_noise.at(counter % plot_noise.getNoiseLength()));
-
-                    counter++;
-
-                    cairo_context.relCurveTo(0, -del_x_arc + plot_noise.at(counter % plot_noise.getNoiseLength()),
-                                             del_x_arc / 2, plot_noise.at(counter % plot_noise.getNoiseLength()), del_x_arc / 2 - 0.25,
-                                             -del_x_arc + plot_noise.at(counter % plot_noise.getNoiseLength()));
-
-                    counter++;
-
-                    cairo_context.relCurveTo(0, -del_x_arc + plot_noise.at(counter % plot_noise.getNoiseLength()),
-                                             del_x_arc / 2, plot_noise.at(counter % plot_noise.getNoiseLength()), del_x_arc / 2 - 0.25,
-                                             -del_x_arc + plot_noise.at(counter % plot_noise.getNoiseLength()));
-
-                    counter++;
-                }
-
-                cairo_context.relLineTo(0.5, (last_state == true ? line_height : -line_height));
-                last_state = !last_state;
+                cairo_context.relCurveTo(0, cast(double)(plot_noise.at((counter + 1) % plot_noise.getNoiseLength()) * affective_power),
+                                         0, cast(double)(plot_noise.at((counter + 2) % plot_noise.getNoiseLength()) * affective_power),
+                                         0.5, (last_state == true ? line_height : -line_height));
+                last_state = !last_state; counter += 2;
             }
         }
 
-        cairo_context.stroke();*/
+        cairo_context.stroke();
+    }
+
+    private void drawArc(ref Scoped!Context cairo_context, double del_x_arc, ulong counter) {
+        double affective_power = cast(double)(noise_power) / 100.0;
+        cairo_context.relCurveTo(0, cast(double)(plot_noise.at((counter + 1) % plot_noise.getNoiseLength()) * affective_power),
+                                 0, cast(double)(plot_noise.at((counter + 2) % plot_noise.getNoiseLength()) * affective_power),
+                                 del_x_arc / 2 - 0.25, -del_x_arc);
+        cairo_context.relCurveTo(0, cast(double)(plot_noise.at((counter + 3) % plot_noise.getNoiseLength()) * affective_power),
+                                 0, cast(double)(plot_noise.at((counter + 4) % plot_noise.getNoiseLength()) * affective_power),
+                                 del_x_arc / 2 - 0.25, -del_x_arc);
+        cairo_context.relCurveTo(0, cast(double)(plot_noise.at((counter + 5) % plot_noise.getNoiseLength()) * affective_power),
+                                 0, cast(double)(plot_noise.at((counter + 6) % plot_noise.getNoiseLength()) * affective_power),
+                                 del_x_arc / 2 - 0.25, del_x_arc);
+        cairo_context.relCurveTo(0, cast(double)(plot_noise.at((counter + 7) % plot_noise.getNoiseLength()) * affective_power),
+                                 0, cast(double)(plot_noise.at((counter + 8) % plot_noise.getNoiseLength()) * affective_power),
+                                 del_x_arc / 2 - 0.25, del_x_arc);
+    }
+
+    private void drawNegativeArc(ref Scoped!Context cairo_context, double del_x_arc, ulong counter) {
+        double affective_power = cast(double)(noise_power) / 100.0;
+        cairo_context.relCurveTo(0, cast(double)(plot_noise.at((counter + 1) % plot_noise.getNoiseLength()) * affective_power),
+                                 0, cast(double)(plot_noise.at((counter + 2) % plot_noise.getNoiseLength()) * affective_power),
+                                 del_x_arc / 2 - 0.25, del_x_arc);
+        cairo_context.relCurveTo(0, cast(double)(plot_noise.at((counter + 3) % plot_noise.getNoiseLength()) * affective_power),
+                                 0, cast(double)(plot_noise.at((counter + 4) % plot_noise.getNoiseLength()) * affective_power),
+                                 del_x_arc / 2 - 0.25, del_x_arc);
+        cairo_context.relCurveTo(0, cast(double)(plot_noise.at((counter + 5) % plot_noise.getNoiseLength()) * affective_power),
+                                 0, cast(double)(plot_noise.at((counter + 6) % plot_noise.getNoiseLength()) * affective_power),
+                                 del_x_arc / 2 - 0.25, -del_x_arc);
+        cairo_context.relCurveTo(0, cast(double)(plot_noise.at((counter + 7) % plot_noise.getNoiseLength()) * affective_power),
+                                 0, cast(double)(plot_noise.at((counter + 8) % plot_noise.getNoiseLength()) * affective_power),
+                                 del_x_arc / 2 - 0.25, -del_x_arc);
     }
 
     private ulong noise_power;

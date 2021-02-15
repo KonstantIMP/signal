@@ -7,6 +7,9 @@
 /// @date   2020
 module Color;
 
+import std.string;
+import std.conv;
+
 /// @brief  RgbaColor   Struct to describe pixel color using RGBA color space
 struct RgbaColor {
     /// @brief  r   Amount of red chanel in color
@@ -17,4 +20,11 @@ struct RgbaColor {
     double b;
     /// @brief  a   Amount of alpha chanel in color
     double a;
+}
+
+string rgbaToHexStr(immutable RgbaColor source) @safe {
+    return rightJustify(to!string(toChars!16(cast(uint)(source.r * 255))), 2, '0') ~
+           rightJustify(to!string(toChars!16(cast(uint)(source.g * 255))), 2, '0') ~
+           rightJustify(to!string(toChars!16(cast(uint)(source.b * 255))), 2, '0') ~
+           rightJustify(to!string(toChars!16(cast(uint)(source.a * 255))), 2, '0');
 }

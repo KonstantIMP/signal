@@ -5,9 +5,13 @@ gnome = import('gnome')
 
 signal_sorce = [
     'source/app.d',
+    'source/Noise.d',
+    'source/Color.d',
     'source/SignalWin.d',
+    'source/PlotViewer.d',
     'source/VideoPulsePlot.d',
-    'source/RadioPulsePlot.d'
+    'source/RadioPulsePlot.d',
+    'source/NoiseRadioPulsePlot.d'
 ]
 signal_resorce = [
     'resource/signal.gresource.xml'

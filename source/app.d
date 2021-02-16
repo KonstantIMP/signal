@@ -32,7 +32,7 @@ int main(string [] args) {
         /// Load UI from .glade file
         Builder signal_builder = new Builder();        
         try {
-            if(os == OS.linux) signal_builder.addFromResource("/kimp/ui/SignalWin.glade");
+            version(linux) signal_builder.addFromResource("/kimp/ui/SignalWin.glade");
             else signal_builder.addFromFile("..\\res\\SignalWin.glade");
         }
         catch(Exception) {

@@ -22,6 +22,7 @@ struct RgbaColor {
     double a;
 }
 
+/// @brief Function for converting RGBA color to a hex str
 string rgbaToHexStr(immutable RgbaColor source) @safe {
     return rightJustify(to!string(toChars!16(cast(uint)(source.r * 255))), 2, '0') ~
            rightJustify(to!string(toChars!16(cast(uint)(source.g * 255))), 2, '0') ~

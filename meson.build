@@ -21,7 +21,7 @@ source_root = meson.source_root()
 source_dir = include_directories('source/')
 resource_dir = 'resource/'
 
-gtkd_dep = dependency('gtkd-3')
+gtkd_dep = dependency('gtk-d:gtkd', method : 'dub')
 gtk_dep = dependency('gtk+-3.0')
 
 signal_resorce = [

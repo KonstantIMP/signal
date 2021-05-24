@@ -1,5 +1,7 @@
 # signal
 
+### Migarted to https://github.com/KonstantIMP/radio 
+
 Signal is a program for modulating and displaying the received signal
 
 ![alt text](.readme/signal_screenshot.png "signal screenshot")
